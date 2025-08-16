@@ -183,16 +183,21 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Logout endpoint
-  app.post("/api/logout", (req, res) => {
-    req.session.destroy((err) => {
+  // Logout endpoint - support both GET and POST
+  const logoutHandler = (req: any, res: any) => {
+    req.session.destroy((err: any) => {
       if (err) {
+        console.error("Logout error:", err);
         res.status(500).json({ message: "Could not log out" });
       } else {
+        res.clearCookie('connect.sid'); // Clear session cookie
         res.json({ success: true });
       }
     });
-  });
+  };
+  
+  app.post("/api/logout", logoutHandler);
+  app.get("/api/logout", logoutHandler);
 
   // Check username availability
   app.post("/api/check-username", async (req, res) => {

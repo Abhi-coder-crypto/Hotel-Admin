@@ -10,15 +10,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+  // Auth routes - override the auth middleware route with our session-based route
+  app.get('/api/auth/user', (req: any, res) => {
+    if ((req.session as any).user) {
+      res.json((req.session as any).user);
+    } else {
+      res.status(401).json({ message: "Not authenticated" });
     }
   });
 

@@ -106,7 +106,9 @@ export default function Sidebar({ hotelName = "Hotel", pendingRequestsCount = 0 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.location.href = '/api/logout'}
+            onClick={() => {
+              window.location.href = '/logout.html';
+            }}
             className="text-gray-400 hover:text-gray-600"
             data-testid="button-logout"
           >
