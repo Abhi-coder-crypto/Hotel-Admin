@@ -1,10 +1,12 @@
 import {
   User,
+  HotelAdmin,
   Hotel,
   RoomType,
   Customer,
   ServiceRequest,
   type UserType,
+  type HotelAdminType,
   type HotelType,
   type RoomTypeType,
   type CustomerType,
@@ -13,6 +15,7 @@ import {
 import {
   type UpsertUser,
   type InsertHotel,
+  type InsertHotelAdmin,
   type InsertCustomer,
   type InsertServiceRequest,
   insertRoomTypeSchema,
@@ -25,6 +28,10 @@ export interface IStorage {
   // User operations (IMPORTANT: mandatory for Replit Auth)
   getUser(id: string): Promise<UserType | undefined>;
   upsertUser(user: UpsertUser): Promise<UserType>;
+  
+  // Hotel admin operations
+  getHotelAdmin(id: string): Promise<HotelAdminType | undefined>;
+  createHotelAdmin(admin: InsertHotelAdmin): Promise<HotelAdminType>;
   
   // Hotel operations
   getUserHotel(userId: string): Promise<HotelType | undefined>;
@@ -81,6 +88,21 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Failed to create/update user');
     }
     return user;
+  }
+
+  // Hotel admin operations
+  async getHotelAdmin(id: string): Promise<HotelAdminType | undefined> {
+    const admin = await HotelAdmin.findOne({ id }).lean() as HotelAdminType | null;
+    return admin || undefined;
+  }
+
+  async createHotelAdmin(adminData: InsertHotelAdmin): Promise<HotelAdminType> {
+    const admin = new HotelAdmin({
+      ...adminData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await admin.save();
+    return admin.toObject() as HotelAdminType;
   }
 
   // Hotel operations

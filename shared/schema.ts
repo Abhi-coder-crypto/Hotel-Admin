@@ -13,6 +13,20 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
+export interface IHotelAdmin extends Document {
+  _id: string;
+  id: string;
+  username: string;
+  password: string;
+  hotelName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IHotel extends Document {
   _id: string;
   id: string;
@@ -33,6 +47,9 @@ export interface ICustomer extends Document {
   email?: string;
   phone: string;
   roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  roomPrice: number;
   checkinTime: Date;
   checkoutTime?: Date;
   expectedStayDays?: number;
@@ -68,6 +85,17 @@ const userSchema = new Schema<IUser>({
   profileImageUrl: String,
 }, { timestamps: true });
 
+const hotelAdminSchema = new Schema<IHotelAdmin>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  hotelName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: String,
+  address: String,
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
+
 const hotelSchema = new Schema<IHotel>({
   id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
   name: { type: String, required: true },
@@ -84,6 +112,9 @@ const customerSchema = new Schema<ICustomer>({
   email: String,
   phone: { type: String, required: true },
   roomNumber: { type: String, required: true },
+  roomTypeId: { type: String, required: true, ref: 'RoomType' },
+  roomTypeName: { type: String, required: true },
+  roomPrice: { type: Number, required: true, min: 0 },
   checkinTime: { type: Date, default: Date.now },
   checkoutTime: Date,
   expectedStayDays: Number,
@@ -119,6 +150,7 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
 
 // Mongoose Models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
+export const HotelAdmin = mongoose.models.HotelAdmin || mongoose.model<IHotelAdmin>('HotelAdmin', hotelAdminSchema);
 export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
@@ -135,13 +167,25 @@ export const insertHotelSchema = z.object({
 export const insertCustomerSchema = z.object({
   hotelId: z.string(),
   name: z.string().min(1, "Customer name is required"),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().or(z.literal("")),
   phone: z.string().min(1, "Phone number is required"),
   roomNumber: z.string().min(1, "Room number is required"),
+  roomTypeId: z.string().min(1, "Room type is required"),
+  roomTypeName: z.string().min(1, "Room type name is required"),
+  roomPrice: z.number().min(0, "Room price must be positive"),
   checkinTime: z.date().optional(),
   checkoutTime: z.date().optional(),
   expectedStayDays: z.number().min(1).optional(),
   isActive: z.boolean().optional(),
+});
+
+export const insertHotelAdminSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  hotelName: z.string().min(1, "Hotel name is required"),
+  email: z.string().email("Valid email is required"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
 });
 
 export const insertServiceRequestSchema = z.object({

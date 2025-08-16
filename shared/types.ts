@@ -12,6 +12,20 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface HotelAdmin {
+  _id?: string;
+  id: string;
+  username: string;
+  password?: string; // Excluded in responses
+  hotelName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Hotel {
   _id?: string;
   id: string;
@@ -113,6 +127,15 @@ export const insertCustomerSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+export const insertHotelAdminSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  hotelName: z.string().min(1, "Hotel name is required"),
+  email: z.string().email("Valid email is required"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+});
+
 export const insertServiceRequestSchema = z.object({
   hotelId: z.string(),
   customerId: z.string().optional(),
@@ -137,5 +160,6 @@ export type UpsertUser = {
 };
 
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
+export type InsertHotelAdmin = z.infer<typeof insertHotelAdminSchema>;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;

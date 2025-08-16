@@ -12,6 +12,20 @@ export interface IUser extends Document {
   updatedAt: Date;
 }
 
+export interface IHotelAdmin extends Document {
+  _id: string;
+  id: string;
+  username: string;
+  password: string;
+  hotelName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IHotel extends Document {
   _id: string;
   id: string;
@@ -85,6 +99,17 @@ const userSchema = new Schema<IUser>({
   firstName: String,
   lastName: String,
   profileImageUrl: String,
+}, { timestamps: true });
+
+const hotelAdminSchema = new Schema<IHotelAdmin>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  hotelName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: String,
+  address: String,
+  isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
 const hotelSchema = new Schema<IHotel>({
@@ -163,6 +188,7 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
 
 // Mongoose Models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
+export const HotelAdmin = mongoose.models.HotelAdmin || mongoose.model<IHotelAdmin>('HotelAdmin', hotelAdminSchema);
 export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
 export const RoomType = mongoose.models.RoomType || mongoose.model<IRoomType>('RoomType', roomTypeSchema);
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
@@ -170,6 +196,7 @@ export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<I
 
 // Type exports for backend
 export type UserType = IUser;
+export type HotelAdminType = IHotelAdmin;
 export type HotelType = IHotel;
 export type RoomTypeType = IRoomType;
 export type CustomerType = ICustomer;

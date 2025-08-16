@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import RegistrationForm from "./RegistrationForm";
 
 export function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showRegistration, setShowRegistration] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -18,11 +20,11 @@ export function LoginForm() {
       const response = await apiRequest('POST', '/api/login', credentials);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "Login successful",
-        description: "Welcome to your hotel dashboard!",
+        description: `Welcome to ${data.user?.hotelName || 'your hotel'} dashboard!`,
       });
     },
     onError: (error: any) => {
@@ -38,6 +40,22 @@ export function LoginForm() {
     e.preventDefault();
     loginMutation.mutate({ username, password });
   };
+
+  const handleRegistrationSuccess = () => {
+    setShowRegistration(false);
+    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+  };
+
+  if (showRegistration) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <RegistrationForm
+          onSuccess={handleRegistrationSuccess}
+          onSwitchToLogin={() => setShowRegistration(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -83,9 +101,21 @@ export function LoginForm() {
               {loginMutation.isPending ? "Signing in..." : "Sign in"}
             </Button>
           </form>
+          
+          <div className="mt-4 text-center">
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => setShowRegistration(true)}
+              data-testid="button-switch-register"
+            >
+              Don't have an account? Create one for your hotel
+            </Button>
+          </div>
+          
           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
             <p className="text-sm text-blue-700">
-              <strong>Demo Credentials:</strong><br />
+              <strong>Demo Credentials (existing admin account):</strong><br />
               Username: admin<br />
               Password: password
             </p>
