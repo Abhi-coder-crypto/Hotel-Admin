@@ -41,17 +41,13 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
 
   const createCustomerMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      console.log("Form data being sent:", data);
       const customerData = {
         ...data,
         checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(),
       };
-      console.log("Customer data being sent to API:", customerData);
       
       const response = await apiRequest("POST", "/api/customers", customerData);
-      const result = await response.json();
-      console.log("Response from API:", result);
-      return result;
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -64,7 +60,6 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       reset();
     },
     onError: (error: any) => {
-      console.error("Customer creation error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to add customer",

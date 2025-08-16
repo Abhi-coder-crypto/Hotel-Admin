@@ -1,10 +1,27 @@
 # Overview
 
-This is a full-stack hotel management system built with React (frontend) and Express.js (backend). The application provides a complete solution for managing hotel operations including customer management, service requests, and analytics. The system features a modern dashboard interface with real-time updates via WebSocket connections and uses Replit's authentication system for user management.
+This is a full-stack hotel management system built with React (frontend) and Express.js (backend). The application provides a complete solution for managing hotel operations including customer management, service requests, and analytics. The system features a modern dashboard interface with real-time updates via WebSocket connections and uses a simple admin/password authentication system (admin/password) for user management. Successfully migrated from Replit Agent to standard Replit environment with MongoDB database persistence.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+# Recent Changes (August 16, 2025)
+
+✅ **Migration Completed Successfully**
+- Migrated hotel management system from Replit Agent to standard Replit environment
+- Replaced complex OIDC authentication with simple admin/password login (admin/password)
+- Fixed customer creation functionality - customers now persist in MongoDB database
+- Auto-creates demo hotel and admin user on first login
+- Customer data persists across multiple hotel websites using shared MongoDB backend
+- All core features working: customer management, service requests, analytics dashboard
+
+✅ **Technical Fixes Applied**
+- Fixed session secret configuration issue
+- Resolved TypeScript WebSocket errors  
+- Fixed customer form validation schema
+- Implemented proper date/time handling for check-ins
+- Real-time updates via WebSocket connections working
 
 # System Architecture
 

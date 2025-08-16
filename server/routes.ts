@@ -85,8 +85,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Hotel not found" });
       }
 
-      console.log("Raw customer data received:", req.body);
-      
       // Parse the checkinTime if it's a string
       const customerInput = { ...req.body };
       if (customerInput.checkinTime && typeof customerInput.checkinTime === 'string') {
@@ -106,11 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hotelId: hotel.id 
       });
       
-      console.log("Parsed customer data:", customerData);
-      
       const customer = await storage.createCustomer(customerData);
-      
-      console.log("Customer created:", customer);
       
       // Broadcast to WebSocket clients
       broadcastToHotel(hotel.id, {
@@ -121,10 +115,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(customer);
     } catch (error) {
       console.error("Error creating customer:", error);
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
-      }
       res.status(400).json({ 
         message: "Failed to create customer", 
         error: error instanceof Error ? error.message : "Unknown error"
