@@ -80,11 +80,11 @@ export default function Customers() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-gradient-to-r from-white to-green-50/50 shadow-sm border-b border-gray-100 px-6 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Customer Management</h2>
-            <p className="text-sm text-gray-500">Manage guest check-ins, check-outs, and stay information</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Customer Management</h2>
+            <p className="text-sm text-gray-600 mt-1">Manage guest check-ins, check-outs, and stay information</p>
           </div>
           <Button 
             onClick={() => setShowAddCustomerModal(true)}
@@ -98,10 +98,10 @@ export default function Customers() {
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50/30 to-green-50/20">
         {/* Search and Filters */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
+        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-white to-gray-50/50">
+          <CardContent className="p-6">
             <div className="flex items-center space-x-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -114,10 +114,10 @@ export default function Customers() {
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <Badge variant="secondary" data-testid="badge-total-customers">
+                <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" data-testid="badge-total-customers">
                   Total: {customers.length}
                 </Badge>
-                <Badge variant="secondary" className="bg-green-100 text-green-800" data-testid="badge-active-customers">
+                <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-sm" data-testid="badge-active-customers">
                   Active: {activeCustomers.length}
                 </Badge>
               </div>
@@ -126,12 +126,14 @@ export default function Customers() {
         </Card>
 
         {/* Active Customers */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <User className="w-5 h-5" />
+        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-br from-white to-green-50/30 hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                <User className="w-4 h-4 text-white" />
+              </div>
               <span>Active Guests</span>
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
+              <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-sm">
                 {activeCustomers.length}
               </Badge>
             </CardTitle>
@@ -158,7 +160,7 @@ export default function Customers() {
                   </TableHeader>
                   <TableBody>
                     {activeCustomers.map((customer) => (
-                      <TableRow key={customer.id} data-testid={`row-customer-${customer.id}`}>
+                      <TableRow key={customer.id} data-testid={`row-customer-${customer.id}`} className="hover:bg-green-50/50 transition-colors">
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <Avatar>
@@ -232,12 +234,14 @@ export default function Customers() {
 
         {/* Recent Check-outs */}
         {checkedOutCustomers.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <LogOut className="w-5 h-5" />
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/30 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+                <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+                  <LogOut className="w-4 h-4 text-white" />
+                </div>
                 <span>Recent Check-outs</span>
-                <Badge variant="secondary">
+                <Badge className="bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-sm">
                   {checkedOutCustomers.length}
                 </Badge>
               </CardTitle>
@@ -256,7 +260,7 @@ export default function Customers() {
                   </TableHeader>
                   <TableBody>
                     {checkedOutCustomers.slice(0, 10).map((customer) => (
-                      <TableRow key={customer.id} data-testid={`row-checkout-${customer.id}`}>
+                      <TableRow key={customer.id} data-testid={`row-checkout-${customer.id}`} className="hover:bg-gray-50/50 transition-colors">
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <Avatar>

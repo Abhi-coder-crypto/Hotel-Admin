@@ -63,17 +63,17 @@ export default function ServiceRequests() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-gradient-to-r from-white to-orange-50/50 shadow-sm border-b border-gray-100 px-6 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Service Requests</h2>
-            <p className="text-sm text-gray-500">Manage and track all guest service requests</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Service Requests</h2>
+            <p className="text-sm text-gray-600 mt-1">Manage and track all guest service requests</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge variant="secondary" data-testid="badge-total-requests">
+            <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" data-testid="badge-total-requests">
               Total: {serviceRequests.length}
             </Badge>
-            <Badge variant="secondary" className="bg-red-100 text-red-800" data-testid="badge-pending-requests">
+            <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm" data-testid="badge-pending-requests">
               Pending: {pendingRequests.length}
             </Badge>
           </div>
@@ -81,10 +81,10 @@ export default function ServiceRequests() {
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50/30 to-orange-50/20">
         {/* Search */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
+        <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-white to-gray-50/50">
+          <CardContent className="p-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -99,12 +99,12 @@ export default function ServiceRequests() {
         </Card>
 
         {/* Status Tabs */}
-        <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending" className="flex items-center space-x-2">
+        <Tabs defaultValue="pending" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-4 bg-white shadow-lg border-0 h-14">
+            <TabsTrigger value="pending" className="flex items-center space-x-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-yellow-600 data-[state=active]:text-white">
               {getStatusIcon("pending")}
               <span>Pending</span>
-              <Badge variant="secondary" className={getStatusColor("pending")}>
+              <Badge className="bg-yellow-100 text-yellow-800 shadow-sm">
                 {pendingRequests.length}
               </Badge>
             </TabsTrigger>
@@ -132,10 +132,12 @@ export default function ServiceRequests() {
           </TabsList>
 
           <TabsContent value="pending">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <AlertCircle className="w-5 h-5 text-yellow-600" />
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-yellow-50/30">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+                  <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                    <AlertCircle className="w-4 h-4 text-white" />
+                  </div>
                   <span>Pending Requests</span>
                 </CardTitle>
               </CardHeader>

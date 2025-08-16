@@ -72,11 +72,11 @@ export default function Dashboard() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-gradient-to-r from-white to-blue-50/50 shadow-sm border-b border-gray-100 px-6 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-            <p className="text-sm text-gray-500">Welcome back, manage your hotel operations</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Dashboard</h2>
+            <p className="text-sm text-gray-600 mt-1">Welcome back! Here's what's happening at your hotel today</p>
           </div>
           <div className="flex items-center space-x-4">
             {/* Notification Bell */}
@@ -106,21 +106,28 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50/30 to-blue-50/20">
         {/* Stats Cards */}
         {stats && (
-          <StatsCards 
-            stats={stats} 
-            totalRooms={hotel?.totalRooms || 20} 
-          />
+          <div className="mb-8">
+            <StatsCards 
+              stats={stats} 
+              totalRooms={hotel?.totalRooms || 20} 
+            />
+          </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Customers */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Recent Check-ins</CardTitle>
-              <Button variant="ghost" size="sm" className="text-blue-500 hover:text-blue-600">
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-blue-50/30 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <span>Recent Check-ins</span>
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                 View All
               </Button>
             </CardHeader>
@@ -132,7 +139,7 @@ export default function Dashboard() {
                   recentCustomers.map((customer) => (
                     <div 
                       key={customer.id} 
-                      className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50"
+                      className="flex items-center space-x-4 p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-white/50 hover:bg-white/80 hover:shadow-md transition-all duration-200 cursor-pointer"
                       data-testid={`customer-row-${customer.id}`}
                     >
                       <Avatar>
@@ -172,7 +179,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white shadow-sm">
                         Active
                       </Badge>
                     </div>
@@ -183,19 +190,23 @@ export default function Dashboard() {
           </Card>
 
           {/* Service Requests */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Pending Service Requests</CardTitle>
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-orange-50/30 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+              <CardTitle className="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                  <Bell className="w-4 h-4 text-white" />
+                </div>
+                <span>Pending Service Requests</span>
+              </CardTitle>
               <Badge 
-                variant="secondary" 
-                className="bg-red-100 text-red-800"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm"
                 data-testid="badge-pending-count"
               >
                 {stats?.pendingRequests || 0} Pending
               </Badge>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {pendingRequests.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">No pending requests</p>
                 ) : (

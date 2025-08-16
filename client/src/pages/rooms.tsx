@@ -50,45 +50,52 @@ export default function Rooms() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Room Management</h1>
-        <p className="text-muted-foreground">
-          Monitor room availability and types across your hotel
-        </p>
-      </div>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-white to-purple-50/50 shadow-sm border-b border-gray-100 px-6 py-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Room Management</h2>
+            <p className="text-sm text-gray-600 mt-1">Monitor room availability and types across your hotel</p>
+          </div>
+        </div>
+      </header>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Content */}
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50/30 to-purple-50/20">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {roomTypes.map((roomType) => (
-          <Card key={roomType.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
+          <Card key={roomType.id} className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  {getRoomIcon(roomType.type)}
-                  <CardTitle className="text-lg">{roomType.name}</CardTitle>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    {getRoomIcon(roomType.type)}
+                  </div>
+                  <CardTitle className="text-xl font-semibold text-gray-800">{roomType.name}</CardTitle>
                 </div>
                 <Badge className={getCategoryColor(roomType.category)}>
                   {roomType.category}
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold">₹{roomType.price.toLocaleString()}</span>
-                <span className="text-sm text-muted-foreground">per night</span>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl">
+                <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">₹{roomType.price.toLocaleString()}</span>
+                <span className="text-sm font-medium text-gray-600">per night</span>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Availability</span>
-                  <Badge className={getAvailabilityColor(roomType.availableRooms, roomType.totalRooms)}>
+                  <Badge className={`shadow-sm ${getAvailabilityColor(roomType.availableRooms, roomType.totalRooms)}`}>
                     {roomType.availableRooms}/{roomType.totalRooms} available
                   </Badge>
                 </div>
                 
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
                   <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-purple-500 to-blue-600 h-3 rounded-full transition-all duration-500 shadow-sm"
                     style={{ 
                       width: `${(roomType.availableRooms / roomType.totalRooms) * 100}%` 
                     }}
@@ -134,19 +141,24 @@ export default function Rooms() {
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      {roomTypes.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Home className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Room Types Found</h3>
-            <p className="text-muted-foreground text-center">
-              Room types will be automatically created when you set up your hotel.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+        
+        {roomTypes.length === 0 && (
+          <div className="col-span-full">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/30">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                  <Home className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-800">No Room Types Found</h3>
+                <p className="text-gray-600 text-center max-w-md">
+                  Room types will be automatically created when you set up your hotel.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        </div>
+      </main>
     </div>
   );
 }

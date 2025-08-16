@@ -59,15 +59,10 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
 
   const createCustomerMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      console.log('=== MUTATION STARTED ===');
-      console.log('Mutation data received:', data);
-      
       // Find the selected room type to get pricing info
       const selectedRoomType = roomTypes.find((rt: RoomType) => rt.id === data.roomTypeId);
-      console.log('Selected room type:', selectedRoomType);
       
       if (!selectedRoomType) {
-        console.error('No room type found for ID:', data.roomTypeId);
         throw new Error("Please select a valid room type");
       }
 
@@ -78,11 +73,8 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
         checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)),
       };
       
-      console.log('Final customer data being sent:', customerData);
-      
       const response = await apiRequest("POST", "/api/customers", customerData);
       const result = await response.json();
-      console.log('API response:', result);
       return result;
     },
     onSuccess: () => {
@@ -98,11 +90,6 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       reset();
     },
     onError: (error: any) => {
-      console.error('=== MUTATION ERROR ===');
-      console.error('Error object:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      
       toast({
         title: "Error",
         description: error.message || "Failed to add customer",
@@ -112,17 +99,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
   });
 
   const onSubmit = (data: FormData) => {
-    console.log('=== FORM SUBMISSION DEBUG ===');
-    console.log('Form data:', data);
-    console.log('Form errors:', errors);
-    console.log('Watch values:', {
-      roomTypeId: watch('roomTypeId'),
-      roomNumber: watch('roomNumber'),
-      name: watch('name'),
-      phone: watch('phone')
-    });
-    
-    // Manual validation
+    // Basic validation
     if (!data.name || data.name.trim() === '') {
       toast({
         title: "Validation Error",
@@ -159,7 +136,6 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       return;
     }
     
-    console.log('Calling mutation with data:', data);
     createCustomerMutation.mutate(data);
   };
 
@@ -305,24 +281,16 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => {
-                console.log('Cancel clicked');
-                onOpenChange(false);
-              }}
+              onClick={() => onOpenChange(false)}
               data-testid="button-cancel"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
               disabled={createCustomerMutation.isPending}
               data-testid="button-submit"
-              onClick={(e) => {
-                console.log('Submit button clicked!');
-                console.log('Form valid?', Object.keys(errors).length === 0);
-                console.log('Current form errors:', errors);
-              }}
             >
               {createCustomerMutation.isPending ? "Adding..." : "Add Customer"}
             </Button>
