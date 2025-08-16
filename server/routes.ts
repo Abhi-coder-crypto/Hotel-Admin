@@ -213,14 +213,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const data = JSON.parse(message.toString());
         
-        if (data.type === 'join_hotel' && data.hotelId) {
+        if (data.type === 'join_hotel' && data.hotelId && typeof data.hotelId === 'string') {
           hotelId = data.hotelId;
           
-          if (!hotelConnections.has(hotelId)) {
-            hotelConnections.set(hotelId, new Set());
+          if (!hotelConnections.has(data.hotelId)) {
+            hotelConnections.set(data.hotelId, new Set());
           }
           
-          hotelConnections.get(hotelId)!.add(ws);
+          const connections = hotelConnections.get(data.hotelId);
+          if (connections) {
+            connections.add(ws);
+          }
         }
       } catch (error) {
         console.error('WebSocket message error:', error);
@@ -229,10 +232,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     ws.on('close', () => {
       if (hotelId && hotelConnections.has(hotelId)) {
-        hotelConnections.get(hotelId)!.delete(ws);
-        
-        if (hotelConnections.get(hotelId)!.size === 0) {
-          hotelConnections.delete(hotelId);
+        const connections = hotelConnections.get(hotelId);
+        if (connections) {
+          connections.delete(ws);
+          
+          if (connections.size === 0) {
+            hotelConnections.delete(hotelId);
+          }
         }
       }
     });
