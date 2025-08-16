@@ -104,47 +104,47 @@ export class DatabaseStorage implements IStorage {
     const defaultRoomTypes = [
       {
         hotelId,
-        name: "Standard Single",
+        name: "Standard Room (Single/Double)",
         category: "standard" as const,
         type: "single" as const,
-        amenities: ["WiFi", "TV", "AC"],
+        amenities: ["Bed", "TV", "Wi-Fi", "Bathroom"],
         price: 2500,
         totalRooms: 5,
         availableRooms: 5,
-        description: "Comfortable single occupancy room"
+        description: "Basic amenities (bed, TV, Wi-Fi, bathroom). Perfect for solo travelers or couples."
       },
       {
         hotelId,
-        name: "Deluxe Double",
+        name: "Deluxe Room",
         category: "deluxe" as const,
         type: "double" as const,
-        amenities: ["WiFi", "TV", "AC", "Mini Bar", "Balcony"],
-        price: 4500,
-        totalRooms: 5,
-        availableRooms: 5,
-        description: "Spacious double room with premium amenities"
-      },
-      {
-        hotelId,
-        name: "Twin Room",
-        category: "standard" as const,
-        type: "twin" as const,
-        amenities: ["WiFi", "TV", "AC"],
+        amenities: ["Large Bed", "TV", "Wi-Fi", "Minibar", "Better View", "Bathroom"],
         price: 3500,
         totalRooms: 5,
         availableRooms: 5,
-        description: "Room with two single beds"
+        description: "More spacious than Standard. Includes extras like minibar, better view, larger bed."
       },
       {
         hotelId,
-        name: "Executive Suite",
+        name: "Suite",
         category: "suite" as const,
-        type: "executive_suite" as const,
-        amenities: ["WiFi", "TV", "AC", "Mini Bar", "Living Area", "Premium View"],
-        price: 8500,
+        type: "junior_suite" as const,
+        amenities: ["Separate Living Area", "Bedroom", "Sofa", "Work Desk", "Luxury Bathroom", "Premium Amenities"],
+        price: 5500,
         totalRooms: 5,
         availableRooms: 5,
-        description: "Luxury suite with separate living area"
+        description: "Separate living area + bedroom. Premium amenities (sofa, work desk, luxury bathroom)."
+      },
+      {
+        hotelId,
+        name: "Family Room",
+        category: "standard" as const,
+        type: "triple" as const,
+        amenities: ["Multiple Beds", "Family Space", "TV", "Wi-Fi", "Large Bathroom"],
+        price: 4500,
+        totalRooms: 5,
+        availableRooms: 5,
+        description: "Designed for families. Multiple beds or a combination (e.g., 1 double + 2 singles)."
       }
     ];
 

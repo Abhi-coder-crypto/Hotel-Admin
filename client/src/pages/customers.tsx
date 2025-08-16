@@ -203,7 +203,7 @@ export default function Customers() {
                           </div>
                         </TableCell>
                         <TableCell data-testid={`text-duration-${customer.id}`}>
-                          {calculateStayDuration(customer.checkinTime!)}
+                          {calculateStayDuration(customer.checkinTime!.toString())}
                         </TableCell>
                         <TableCell data-testid={`text-expected-stay-${customer.id}`}>
                           {customer.expectedStayDays ? `${customer.expectedStayDays} days` : "Not specified"}
@@ -278,7 +278,7 @@ export default function Customers() {
                           {customer.checkoutTime && format(new Date(customer.checkoutTime), "MMM dd, h:mm a")}
                         </TableCell>
                         <TableCell>
-                          {calculateStayDuration(customer.checkinTime!, customer.checkoutTime || undefined)}
+                          {calculateStayDuration(customer.checkinTime!.toString(), customer.checkoutTime?.toString())}
                         </TableCell>
                       </TableRow>
                     ))}
