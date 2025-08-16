@@ -44,15 +44,21 @@ export async function setupAuth(app: Express) {
       });
       
       // Create default hotel if doesn't exist
-      const existingHotel = await storage.getUserHotel("admin");
-      if (!existingHotel) {
-        await storage.createHotel({
+      let hotel = await storage.getUserHotel("admin");
+      if (!hotel) {
+        hotel = await storage.createHotel({
           name: "Demo Hotel",
           ownerId: "admin",
           address: "123 Main Street, City, State",
           phone: "+1-555-0123",
           totalRooms: 50
         });
+      } else {
+        // Ensure room types exist for existing hotel
+        const roomTypes = await storage.getRoomTypes(hotel.id);
+        if (roomTypes.length === 0) {
+          await storage.createDefaultRoomTypesForHotel(hotel.id);
+        }
       }
       
       (req.session as any).user = {

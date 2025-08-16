@@ -38,6 +38,7 @@ export interface IStorage {
   updateRoomType(id: string, data: any): Promise<RoomTypeType>;
   deleteRoomType(id: string): Promise<void>;
   updateRoomAvailability(roomTypeId: string, change: number): Promise<void>;
+  createDefaultRoomTypesForHotel(hotelId: string): Promise<void>;
   
   // Customer operations
   getCustomers(hotelId: string): Promise<CustomerType[]>;
@@ -98,6 +99,10 @@ export class DatabaseStorage implements IStorage {
     await this.createDefaultRoomTypes(hotel.id);
     
     return hotel.toObject() as HotelType;
+  }
+
+  async createDefaultRoomTypesForHotel(hotelId: string): Promise<void> {
+    return this.createDefaultRoomTypes(hotelId);
   }
 
   private async createDefaultRoomTypes(hotelId: string): Promise<void> {
