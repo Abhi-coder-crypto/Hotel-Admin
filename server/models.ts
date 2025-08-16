@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { z } from "zod";
 
 // MongoDB Document Interfaces
 export interface IUser extends Document {
@@ -123,61 +122,8 @@ export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', ho
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
 
-// Zod Validation Schemas
-export const insertHotelSchema = z.object({
-  name: z.string().min(1, "Hotel name is required"),
-  ownerId: z.string(),
-  address: z.string().optional(),
-  phone: z.string().optional(),
-  totalRooms: z.number().min(0).optional(),
-});
-
-export const insertCustomerSchema = z.object({
-  hotelId: z.string(),
-  name: z.string().min(1, "Customer name is required"),
-  email: z.string().email().optional(),
-  phone: z.string().min(1, "Phone number is required"),
-  roomNumber: z.string().min(1, "Room number is required"),
-  checkinTime: z.date().optional(),
-  checkoutTime: z.date().optional(),
-  expectedStayDays: z.number().min(1).optional(),
-  isActive: z.boolean().optional(),
-});
-
-export const insertServiceRequestSchema = z.object({
-  hotelId: z.string(),
-  customerId: z.string().optional(),
-  roomNumber: z.string().min(1, "Room number is required"),
-  type: z.enum(['maintenance', 'room_service', 'food_delivery', 'housekeeping', 'concierge', 'other']),
-  description: z.string().min(1, "Description is required"),
-  status: z.enum(['pending', 'assigned', 'in_progress', 'completed', 'cancelled']).optional(),
-  assignedTo: z.string().optional(),
-  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
-  requestedAt: z.date().optional(),
-  assignedAt: z.date().optional(),
-  completedAt: z.date().optional(),
-});
-
-// Type exports
-export type UpsertUser = {
-  id: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  profileImageUrl?: string;
-};
-
+// Type exports for backend
 export type UserType = IUser;
 export type HotelType = IHotel;
 export type CustomerType = ICustomer;
 export type ServiceRequestType = IServiceRequest;
-
-export type InsertHotel = z.infer<typeof insertHotelSchema>;
-export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
-export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
-
-// Backwards compatibility type aliases
-export type User = UserType;
-export type Hotel = HotelType;
-export type Customer = CustomerType;
-export type ServiceRequest = ServiceRequestType;

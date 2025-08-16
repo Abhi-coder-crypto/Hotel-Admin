@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema } from "@shared/schema";
+import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema } from "@shared/types";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {

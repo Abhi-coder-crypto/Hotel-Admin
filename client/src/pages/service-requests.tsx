@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Bell, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { ServiceRequest } from "@shared/schema";
+import { ServiceRequest } from "@shared/types";
 import ServiceRequestCard from "@/components/service-request-card";
 
 export default function ServiceRequests() {

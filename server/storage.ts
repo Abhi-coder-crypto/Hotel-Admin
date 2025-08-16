@@ -1,43 +1,45 @@
 import {
-  users,
-  hotels,
-  customers,
-  serviceRequests,
-  type User,
+  User,
+  Hotel,
+  Customer,
+  ServiceRequest,
+  type UserType,
+  type HotelType,
+  type CustomerType,
+  type ServiceRequestType,
+} from "./models";
+import {
   type UpsertUser,
-  type Hotel,
   type InsertHotel,
-  type Customer,
   type InsertCustomer,
-  type ServiceRequest,
   type InsertServiceRequest,
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, and, desc, count, sql } from "drizzle-orm";
+} from "@shared/types";
+import "./db"; // Initialize MongoDB connection
+import mongoose from "mongoose";
 
 // Interface for storage operations
 export interface IStorage {
   // User operations (IMPORTANT: mandatory for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUser(id: string): Promise<UserType | undefined>;
+  upsertUser(user: UpsertUser): Promise<UserType>;
   
   // Hotel operations
-  getUserHotel(userId: string): Promise<Hotel | undefined>;
-  createHotel(hotel: InsertHotel): Promise<Hotel>;
-  updateHotel(id: string, data: Partial<InsertHotel>): Promise<Hotel>;
+  getUserHotel(userId: string): Promise<HotelType | undefined>;
+  createHotel(hotel: InsertHotel): Promise<HotelType>;
+  updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType>;
   
   // Customer operations
-  getCustomers(hotelId: string): Promise<Customer[]>;
-  getCustomer(id: string): Promise<Customer | undefined>;
-  createCustomer(customer: InsertCustomer): Promise<Customer>;
-  updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<Customer>;
+  getCustomers(hotelId: string): Promise<CustomerType[]>;
+  getCustomer(id: string): Promise<CustomerType | undefined>;
+  createCustomer(customer: InsertCustomer): Promise<CustomerType>;
+  updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<CustomerType>;
   deleteCustomer(id: string): Promise<void>;
   
   // Service request operations
-  getServiceRequests(hotelId: string): Promise<ServiceRequest[]>;
-  getServiceRequest(id: string): Promise<ServiceRequest | undefined>;
-  createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequest>;
-  updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequest>;
+  getServiceRequests(hotelId: string): Promise<ServiceRequestType[]>;
+  getServiceRequest(id: string): Promise<ServiceRequestType | undefined>;
+  createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequestType>;
+  updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequestType>;
   
   // Analytics
   getHotelStats(hotelId: string): Promise<{
@@ -50,103 +52,117 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations (IMPORTANT: mandatory for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+  async getUser(id: string): Promise<UserType | undefined> {
+    const user = await User.findOne({ id }).lean() as UserType | null;
+    return user || undefined;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
+  async upsertUser(userData: UpsertUser): Promise<UserType> {
+    const user = await User.findOneAndUpdate(
+      { id: userData.id },
+      { ...userData, updatedAt: new Date() },
+      { new: true, upsert: true, lean: true }
+    ) as UserType | null;
+    if (!user) {
+      throw new Error('Failed to create/update user');
+    }
     return user;
   }
 
   // Hotel operations
-  async getUserHotel(userId: string): Promise<Hotel | undefined> {
-    const [hotel] = await db.select().from(hotels).where(eq(hotels.ownerId, userId));
-    return hotel;
+  async getUserHotel(userId: string): Promise<HotelType | undefined> {
+    const hotel = await Hotel.findOne({ ownerId: userId }).lean() as HotelType | null;
+    return hotel || undefined;
   }
 
-  async createHotel(hotel: InsertHotel): Promise<Hotel> {
-    const [newHotel] = await db.insert(hotels).values(hotel).returning();
-    return newHotel;
+  async createHotel(hotelData: InsertHotel): Promise<HotelType> {
+    const hotel = new Hotel({
+      ...hotelData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await hotel.save();
+    return hotel.toObject() as HotelType;
   }
 
-  async updateHotel(id: string, data: Partial<InsertHotel>): Promise<Hotel> {
-    const [hotel] = await db
-      .update(hotels)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(hotels.id, id))
-      .returning();
+  async updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType> {
+    const hotel = await Hotel.findOneAndUpdate(
+      { id },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as HotelType | null;
+    if (!hotel) {
+      throw new Error('Hotel not found');
+    }
     return hotel;
   }
 
   // Customer operations
-  async getCustomers(hotelId: string): Promise<Customer[]> {
-    return await db
-      .select()
-      .from(customers)
-      .where(eq(customers.hotelId, hotelId))
-      .orderBy(desc(customers.createdAt));
+  async getCustomers(hotelId: string): Promise<CustomerType[]> {
+    return await Customer.find({ hotelId })
+      .sort({ createdAt: -1 })
+      .lean() as CustomerType[];
   }
 
-  async getCustomer(id: string): Promise<Customer | undefined> {
-    const [customer] = await db.select().from(customers).where(eq(customers.id, id));
-    return customer;
+  async getCustomer(id: string): Promise<CustomerType | undefined> {
+    const customer = await Customer.findOne({ id }).lean() as CustomerType | null;
+    return customer || undefined;
   }
 
-  async createCustomer(customer: InsertCustomer): Promise<Customer> {
-    const [newCustomer] = await db.insert(customers).values(customer).returning();
-    return newCustomer;
+  async createCustomer(customerData: InsertCustomer): Promise<CustomerType> {
+    const customer = new Customer({
+      ...customerData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await customer.save();
+    return customer.toObject() as CustomerType;
   }
 
-  async updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<Customer> {
-    const [customer] = await db
-      .update(customers)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(customers.id, id))
-      .returning();
+  async updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<CustomerType> {
+    const customer = await Customer.findOneAndUpdate(
+      { id },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as CustomerType | null;
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
     return customer;
   }
 
   async deleteCustomer(id: string): Promise<void> {
-    await db.delete(customers).where(eq(customers.id, id));
+    await Customer.deleteOne({ id });
   }
 
   // Service request operations
-  async getServiceRequests(hotelId: string): Promise<ServiceRequest[]> {
-    return await db
-      .select()
-      .from(serviceRequests)
-      .where(eq(serviceRequests.hotelId, hotelId))
-      .orderBy(desc(serviceRequests.requestedAt));
+  async getServiceRequests(hotelId: string): Promise<ServiceRequestType[]> {
+    return await ServiceRequest.find({ hotelId })
+      .sort({ requestedAt: -1 })
+      .lean() as ServiceRequestType[];
   }
 
-  async getServiceRequest(id: string): Promise<ServiceRequest | undefined> {
-    const [request] = await db.select().from(serviceRequests).where(eq(serviceRequests.id, id));
-    return request;
+  async getServiceRequest(id: string): Promise<ServiceRequestType | undefined> {
+    const request = await ServiceRequest.findOne({ id }).lean() as ServiceRequestType | null;
+    return request || undefined;
   }
 
-  async createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequest> {
-    const [newRequest] = await db.insert(serviceRequests).values(request).returning();
-    return newRequest;
+  async createServiceRequest(requestData: InsertServiceRequest): Promise<ServiceRequestType> {
+    const request = new ServiceRequest({
+      ...requestData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await request.save();
+    return request.toObject() as ServiceRequestType;
   }
 
-  async updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequest> {
-    const [request] = await db
-      .update(serviceRequests)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(serviceRequests.id, id))
-      .returning();
+  async updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequestType> {
+    const request = await ServiceRequest.findOneAndUpdate(
+      { id },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as ServiceRequestType | null;
+    if (!request) {
+      throw new Error('Service request not found');
+    }
     return request;
   }
 
@@ -157,31 +173,21 @@ export class DatabaseStorage implements IStorage {
     pendingRequests: number;
     occupancyRate: number;
   }> {
-    const [totalCustomersResult] = await db
-      .select({ count: count() })
-      .from(customers)
-      .where(eq(customers.hotelId, hotelId));
-
-    const [activeCustomersResult] = await db
-      .select({ count: count() })
-      .from(customers)
-      .where(and(eq(customers.hotelId, hotelId), eq(customers.isActive, true)));
-
-    const [pendingRequestsResult] = await db
-      .select({ count: count() })
-      .from(serviceRequests)
-      .where(and(eq(serviceRequests.hotelId, hotelId), eq(serviceRequests.status, "pending")));
-
-    const [hotelData] = await db.select().from(hotels).where(eq(hotels.id, hotelId));
+    const [totalCustomers, activeCustomers, pendingRequests, hotelData] = await Promise.all([
+      Customer.countDocuments({ hotelId }),
+      Customer.countDocuments({ hotelId, isActive: true }),
+      ServiceRequest.countDocuments({ hotelId, status: 'pending' }),
+      Hotel.findOne({ id: hotelId }).lean() as Promise<HotelType | null>
+    ]);
 
     const occupancyRate = hotelData?.totalRooms 
-      ? Math.round((activeCustomersResult.count / hotelData.totalRooms) * 100)
+      ? Math.round((activeCustomers / hotelData.totalRooms) * 100)
       : 0;
 
     return {
-      totalCustomers: totalCustomersResult.count,
-      activeCustomers: activeCustomersResult.count,
-      pendingRequests: pendingRequestsResult.count,
+      totalCustomers,
+      activeCustomers,
+      pendingRequests,
       occupancyRate,
     };
   }

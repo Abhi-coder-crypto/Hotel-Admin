@@ -8,19 +8,28 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Customers from "@/pages/customers";
 import ServiceRequests from "@/pages/service-requests";
+import HotelSetup from "@/pages/hotel-setup";
 import Sidebar from "@/components/sidebar";
 import NotFound from "@/pages/not-found";
 import { useQuery } from "@tanstack/react-query";
+import { Hotel } from "@shared/types";
+
+interface HotelStats {
+  totalCustomers: number;
+  activeCustomers: number;
+  pendingRequests: number;
+  occupancyRate: number;
+}
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  const { data: hotel } = useQuery({
+  const { data: hotel } = useQuery<Hotel>({
     queryKey: ["/api/hotel"],
     enabled: isAuthenticated,
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<HotelStats>({
     queryKey: ["/api/analytics/stats"],
     enabled: isAuthenticated,
   });
@@ -38,6 +47,11 @@ function AppContent() {
 
   if (!isAuthenticated) {
     return <Landing />;
+  }
+
+  // Show hotel setup if user doesn't have a hotel yet
+  if (isAuthenticated && hotel === null) {
+    return <HotelSetup />;
   }
 
   return (

@@ -8,8 +8,15 @@ import { Plus, Bell, CalendarCheck, ThumbsUp, Clock, User } from "lucide-react";
 import StatsCards from "@/components/stats-cards";
 import AddCustomerModal from "@/components/add-customer-modal";
 import ServiceRequestCard from "@/components/service-request-card";
-import { Customer, ServiceRequest } from "@shared/schema";
+import { Customer, ServiceRequest, Hotel } from "@shared/types";
 import { formatDistanceToNow } from "date-fns";
+
+interface HotelStats {
+  totalCustomers: number;
+  activeCustomers: number;
+  pendingRequests: number;
+  occupancyRate: number;
+}
 
 export default function Dashboard() {
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
@@ -24,11 +31,11 @@ export default function Dashboard() {
     queryKey: ["/api/service-requests"],
   });
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<HotelStats>({
     queryKey: ["/api/analytics/stats"],
   });
 
-  const { data: hotel } = useQuery({
+  const { data: hotel } = useQuery<Hotel>({
     queryKey: ["/api/hotel"],
   });
 
@@ -74,12 +81,12 @@ export default function Dashboard() {
             {/* Notification Bell */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="text-xl" />
-              {stats?.pendingRequests > 0 && (
+              {(stats?.pendingRequests || 0) > 0 && (
                 <span 
                   className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
                   data-testid="badge-notifications"
                 >
-                  {stats.pendingRequests}
+                  {stats?.pendingRequests || 0}
                 </span>
               )}
             </Button>

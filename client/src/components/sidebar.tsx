@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { User as UserType } from "@shared/types";
 import { 
   LayoutDashboard, 
   Users, 
@@ -22,7 +23,7 @@ interface SidebarProps {
 
 export default function Sidebar({ hotelName = "Hotel", pendingRequestsCount = 0 }: SidebarProps) {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: UserType | undefined, isLoading: boolean, isAuthenticated: boolean };
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },

@@ -9,7 +9,7 @@ import {
   HeadphonesIcon, 
   MoreHorizontal 
 } from "lucide-react";
-import { ServiceRequest } from "@shared/schema";
+import { ServiceRequest } from "@shared/types";
 import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -111,7 +111,6 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
   const handleComplete = () => {
     updateRequestMutation.mutate({
       status: "completed",
-      completedAt: new Date().toISOString() as any,
     });
     toast({
       title: "Service Request Completed",

@@ -14,7 +14,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Plus, Search, User, Phone, Mail, Bed, Calendar, MoreHorizontal, LogOut } from "lucide-react";
-import { Customer } from "@shared/schema";
+import { Customer } from "@shared/types";
 import { formatDistanceToNow, format } from "date-fns";
 import AddCustomerModal from "@/components/add-customer-modal";
 import { apiRequest } from "@/lib/queryClient";
@@ -194,16 +194,16 @@ export default function Customers() {
                             <Calendar className="w-4 h-4 text-gray-400" />
                             <div>
                               <p className="text-sm" data-testid={`text-checkin-date-${customer.id}`}>
-                                {format(new Date(customer.checkinTime), "MMM dd, yyyy")}
+                                {format(new Date(customer.checkinTime!), "MMM dd, yyyy")}
                               </p>
                               <p className="text-xs text-gray-500" data-testid={`text-checkin-time-${customer.id}`}>
-                                {format(new Date(customer.checkinTime), "h:mm a")}
+                                {format(new Date(customer.checkinTime!), "h:mm a")}
                               </p>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell data-testid={`text-duration-${customer.id}`}>
-                          {calculateStayDuration(customer.checkinTime)}
+                          {calculateStayDuration(customer.checkinTime!)}
                         </TableCell>
                         <TableCell data-testid={`text-expected-stay-${customer.id}`}>
                           {customer.expectedStayDays ? `${customer.expectedStayDays} days` : "Not specified"}
@@ -272,13 +272,13 @@ export default function Customers() {
                         </TableCell>
                         <TableCell>{customer.roomNumber}</TableCell>
                         <TableCell>
-                          {format(new Date(customer.checkinTime), "MMM dd, h:mm a")}
+                          {format(new Date(customer.checkinTime!), "MMM dd, h:mm a")}
                         </TableCell>
                         <TableCell>
                           {customer.checkoutTime && format(new Date(customer.checkoutTime), "MMM dd, h:mm a")}
                         </TableCell>
                         <TableCell>
-                          {calculateStayDuration(customer.checkinTime, customer.checkoutTime || undefined)}
+                          {calculateStayDuration(customer.checkinTime!, customer.checkoutTime || undefined)}
                         </TableCell>
                       </TableRow>
                     ))}
