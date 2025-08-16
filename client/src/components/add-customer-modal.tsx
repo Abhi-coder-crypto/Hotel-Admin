@@ -34,7 +34,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      checkinTime: new Date().toISOString().slice(0, 16),
+      checkinTime: new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)).toISOString().slice(0, 16),
       isActive: true,
     },
   });
@@ -43,7 +43,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
     mutationFn: async (data: FormData) => {
       const customerData = {
         ...data,
-        checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(),
+        checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)),
       };
       
       const response = await apiRequest("POST", "/api/customers", customerData);

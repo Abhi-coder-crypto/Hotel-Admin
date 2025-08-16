@@ -91,9 +91,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerInput.checkinTime = new Date(customerInput.checkinTime);
       }
       
-      // Set default values
+      // Set default values - use Indian Standard Time (IST = UTC + 5:30)
       if (!customerInput.checkinTime) {
-        customerInput.checkinTime = new Date();
+        customerInput.checkinTime = new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000));
       }
       if (customerInput.isActive === undefined) {
         customerInput.isActive = true;
