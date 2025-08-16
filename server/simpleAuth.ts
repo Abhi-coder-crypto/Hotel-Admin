@@ -13,7 +13,7 @@ export function getSession() {
     checkPeriod: sessionTtl,
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || 'dev-secret-key-change-in-production',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
