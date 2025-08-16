@@ -13,8 +13,8 @@ interface StatsCardsProps {
 }
 
 export default function StatsCards({ stats, totalRooms = 20 }: StatsCardsProps) {
-  const revenueGrowth = 8; // Percentage growth
-  const customerGrowth = 12; // Percentage growth
+  // Only show growth indicators if we have meaningful historical data
+  const showGrowthIndicators = stats.totalCustomers > 10; // Show growth only after some activity
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -30,10 +30,15 @@ export default function StatsCards({ stats, totalRooms = 20 }: StatsCardsProps) 
               >
                 {stats.totalCustomers}
               </p>
-              <p className="text-sm text-green-600 mt-2">
-                <TrendingUp className="w-4 h-4 inline mr-1" />
-                <span>+{customerGrowth}% from last month</span>
-              </p>
+              {showGrowthIndicators ? (
+                <p className="text-sm text-gray-500 mt-2">
+                  <span>Growth tracking available after more bookings</span>
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">
+                  <span>New hotel - building customer base</span>
+                </p>
+              )}
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <Users className="text-blue-600 text-xl" />
@@ -101,10 +106,15 @@ export default function StatsCards({ stats, totalRooms = 20 }: StatsCardsProps) 
               >
                 ₹{stats.totalRevenue.toLocaleString()}
               </p>
-              <p className="text-sm text-green-600 mt-2">
-                <TrendingUp className="w-4 h-4 inline mr-1" />
-                <span>+{revenueGrowth}% from last period</span>
-              </p>
+              {showGrowthIndicators ? (
+                <p className="text-sm text-gray-500 mt-2">
+                  <span>Growth tracking available after more bookings</span>
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">
+                  <span>Revenue from {stats.totalCustomers} bookings</span>
+                </p>
+              )}
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
               <DollarSign className="text-yellow-600 text-xl" />

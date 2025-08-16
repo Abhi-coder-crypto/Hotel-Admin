@@ -16,6 +16,7 @@ interface HotelStats {
   activeCustomers: number;
   pendingRequests: number;
   occupancyRate: number;
+  totalRevenue: number;
 }
 
 export default function Dashboard() {
