@@ -58,6 +58,17 @@ export async function setupAuth(app: Express) {
         const roomTypes = await storage.getRoomTypes(hotel.id);
         if (roomTypes.length === 0) {
           await storage.createDefaultRoomTypesForHotel(hotel.id);
+        } else {
+          // Check if room types have roomNumbers - if not, recreate them
+          const firstRoomType = roomTypes[0];
+          if (!firstRoomType.roomNumbers || firstRoomType.roomNumbers.length === 0) {
+            // Delete existing room types and recreate with room numbers
+            console.log("Recreating room types with room numbers...");
+            for (const roomType of roomTypes) {
+              await storage.deleteRoomType(roomType.id);
+            }
+            await storage.createDefaultRoomTypesForHotel(hotel.id);
+          }
         }
         
         // Update hotel total rooms to match actual room types (4 types × 5 rooms = 20)
