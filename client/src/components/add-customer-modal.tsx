@@ -91,17 +91,39 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
   });
 
   const onSubmit = (data: FormData) => {
+    // Debug form data
+    console.log('Form data:', data);
+    console.log('Form errors:', errors);
+    
+    if (!data.roomTypeId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a room type",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!data.roomNumber) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a room number",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createCustomerMutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md mx-4">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Customer</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-1">
           <div>
             <Label htmlFor="name">Customer Name</Label>
             <Input
@@ -148,8 +170,8 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
             <Select
               value={watch("roomTypeId") || ""}
               onValueChange={(value) => {
-                setValue("roomTypeId", value);
-                setValue("roomNumber", ""); // Reset room number when room type changes
+                setValue("roomTypeId", value, { shouldValidate: true });
+                setValue("roomNumber", "", { shouldValidate: true }); // Reset room number when room type changes
               }}
             >
               <SelectTrigger data-testid="select-room-type">
@@ -185,7 +207,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               <Label htmlFor="roomNumber">Available Room Numbers</Label>
               <Select
                 value={watch("roomNumber") || ""}
-                onValueChange={(value) => setValue("roomNumber", value)}
+                onValueChange={(value) => setValue("roomNumber", value, { shouldValidate: true })}
               >
                 <SelectTrigger data-testid="select-room-number">
                   <SelectValue placeholder="Select room number" />
@@ -231,7 +253,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
             )}
           </div>
 
-          <div className="flex space-x-4 pt-4">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4">
             <Button
               type="button"
               variant="outline"
