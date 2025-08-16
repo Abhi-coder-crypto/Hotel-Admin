@@ -29,10 +29,32 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
 
   // Login endpoint
-  app.post("/api/login", (req, res) => {
+  app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
     
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      const { storage } = await import("./storage");
+      
+      // Create admin user if doesn't exist
+      await storage.upsertUser({
+        id: "admin",
+        email: "admin@hotel.com",
+        firstName: "Admin",
+        lastName: "User"
+      });
+      
+      // Create default hotel if doesn't exist
+      const existingHotel = await storage.getUserHotel("admin");
+      if (!existingHotel) {
+        await storage.createHotel({
+          name: "Demo Hotel",
+          ownerId: "admin",
+          address: "123 Main Street, City, State",
+          phone: "+1-555-0123",
+          totalRooms: 50
+        });
+      }
+      
       (req.session as any).user = {
         id: "admin",
         username: "admin",

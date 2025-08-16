@@ -59,9 +59,9 @@ export default function Sidebar({ hotelName = "Hotel", pendingRequestsCount = 0 
             return (
               <li key={item.name}>
                 <Link href={item.href}>
-                  <a
+                  <div
                     className={cn(
-                      "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors",
+                      "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors cursor-pointer",
                       isActive
                         ? "bg-blue-500 text-white"
                         : "text-gray-700 hover:bg-gray-100"
@@ -78,7 +78,7 @@ export default function Sidebar({ hotelName = "Hotel", pendingRequestsCount = 0 
                         {item.badge}
                       </span>
                     )}
-                  </a>
+                  </div>
                 </Link>
               </li>
             );
