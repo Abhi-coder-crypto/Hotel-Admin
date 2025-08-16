@@ -7,12 +7,12 @@ interface StatsCardsProps {
     activeCustomers: number;
     pendingRequests: number;
     occupancyRate: number;
+    totalRevenue: number;
   };
   totalRooms?: number;
 }
 
-export default function StatsCards({ stats, totalRooms = 120 }: StatsCardsProps) {
-  const monthlyRevenue = 45280; // This would come from actual revenue calculation
+export default function StatsCards({ stats, totalRooms = 20 }: StatsCardsProps) {
   const revenueGrowth = 8; // Percentage growth
   const customerGrowth = 12; // Percentage growth
 
@@ -89,25 +89,25 @@ export default function StatsCards({ stats, totalRooms = 120 }: StatsCardsProps)
         </CardContent>
       </Card>
 
-      {/* Monthly Revenue */}
+      {/* Total Revenue */}
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Monthly Revenue</p>
+              <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
               <p 
                 className="text-3xl font-bold text-gray-900"
-                data-testid="stat-monthly-revenue"
+                data-testid="stat-total-revenue"
               >
-                ${monthlyRevenue.toLocaleString()}
+                ₹{stats.totalRevenue.toLocaleString()}
               </p>
               <p className="text-sm text-green-600 mt-2">
                 <TrendingUp className="w-4 h-4 inline mr-1" />
-                <span>+{revenueGrowth}% from last month</span>
+                <span>+{revenueGrowth}% from last period</span>
               </p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="text-purple-600 text-xl" />
+            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <DollarSign className="text-yellow-600 text-xl" />
             </div>
           </div>
         </CardContent>

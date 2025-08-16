@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./simpleAuth";
-import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema } from "@shared/types";
+import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema } from "@shared/types";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -55,6 +55,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating hotel:", error);
       res.status(400).json({ message: "Failed to update hotel" });
+    }
+  });
+
+  // Room type routes
+  app.get('/api/room-types', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const roomTypes = await storage.getRoomTypes(hotel.id);
+      res.json(roomTypes);
+    } catch (error) {
+      console.error("Error fetching room types:", error);
+      res.status(500).json({ message: "Failed to fetch room types" });
+    }
+  });
+
+  app.post('/api/room-types', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const roomTypeData = insertRoomTypeSchema.parse({ ...req.body, hotelId: hotel.id });
+      const roomType = await storage.createRoomType(roomTypeData);
+      res.json(roomType);
+    } catch (error) {
+      console.error("Error creating room type:", error);
+      res.status(400).json({ message: "Failed to create room type" });
     }
   });
 

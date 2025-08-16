@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Customers from "@/pages/customers";
+import Rooms from "@/pages/rooms";
 import ServiceRequests from "@/pages/service-requests";
 import HotelSetup from "@/pages/hotel-setup";
 import Sidebar from "@/components/sidebar";
@@ -19,6 +20,7 @@ interface HotelStats {
   activeCustomers: number;
   pendingRequests: number;
   occupancyRate: number;
+  totalRevenue: number;
 }
 
 function AppContent() {
@@ -66,7 +68,7 @@ function AppContent() {
           <Route path="/" component={Dashboard} />
           <Route path="/customers" component={Customers} />
           <Route path="/service-requests" component={ServiceRequests} />
-          <Route path="/rooms" component={() => <div className="p-6">Rooms page coming soon...</div>} />
+          <Route path="/rooms" component={Rooms} />
           <Route path="/analytics" component={() => <div className="p-6">Analytics page coming soon...</div>} />
           <Route path="/reports" component={() => <div className="p-6">Reports page coming soon...</div>} />
           <Route component={NotFound} />

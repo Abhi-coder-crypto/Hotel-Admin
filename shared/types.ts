@@ -24,6 +24,22 @@ export interface Hotel {
   updatedAt: Date;
 }
 
+export interface RoomType {
+  _id?: string;
+  id: string;
+  hotelId: string;
+  name: string;
+  category: 'standard' | 'deluxe' | 'suite' | 'studio';
+  type: 'single' | 'double' | 'twin' | 'triple' | 'junior_suite' | 'executive_suite' | 'presidential_suite';
+  amenities: string[];
+  price: number;
+  totalRooms: number;
+  availableRooms: number;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Customer {
   _id?: string;
   id: string;
@@ -32,6 +48,9 @@ export interface Customer {
   email?: string;
   phone: string;
   roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  roomPrice: number;
   checkinTime: Date;
   checkoutTime?: Date;
   expectedStayDays?: number;
@@ -67,12 +86,26 @@ export const insertHotelSchema = z.object({
   totalRooms: z.number().min(0).optional(),
 });
 
+export const insertRoomTypeSchema = z.object({
+  hotelId: z.string(),
+  name: z.string().min(1, "Room type name is required"),
+  category: z.enum(['standard', 'deluxe', 'suite', 'studio']),
+  type: z.enum(['single', 'double', 'twin', 'triple', 'junior_suite', 'executive_suite', 'presidential_suite']),
+  amenities: z.array(z.string()).default([]),
+  price: z.number().min(0, "Price must be positive"),
+  totalRooms: z.number().min(1, "Must have at least 1 room"),
+  description: z.string().optional(),
+});
+
 export const insertCustomerSchema = z.object({
   hotelId: z.string(),
   name: z.string().min(1, "Customer name is required"),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().min(1, "Phone number is required"),
   roomNumber: z.string().min(1, "Room number is required"),
+  roomTypeId: z.string().min(1, "Room type is required"),
+  roomTypeName: z.string().min(1, "Room type name is required"),
+  roomPrice: z.number().min(0, "Room price must be positive"),
   checkinTime: z.date().optional(),
   checkoutTime: z.date().optional(),
   expectedStayDays: z.number().min(1).optional(),

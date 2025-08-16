@@ -24,6 +24,22 @@ export interface IHotel extends Document {
   updatedAt: Date;
 }
 
+export interface IRoomType extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  name: string;
+  category: 'standard' | 'deluxe' | 'suite' | 'studio';
+  type: 'single' | 'double' | 'twin' | 'triple' | 'junior_suite' | 'executive_suite' | 'presidential_suite';
+  amenities: string[];
+  price: number;
+  totalRooms: number;
+  availableRooms: number;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ICustomer extends Document {
   _id: string;
   id: string;
@@ -32,6 +48,9 @@ export interface ICustomer extends Document {
   email?: string;
   phone: string;
   roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  roomPrice: number;
   checkinTime: Date;
   checkoutTime?: Date;
   expectedStayDays?: number;
@@ -76,6 +95,27 @@ const hotelSchema = new Schema<IHotel>({
   totalRooms: { type: Number, default: 0 },
 }, { timestamps: true });
 
+const roomTypeSchema = new Schema<IRoomType>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  name: { type: String, required: true },
+  category: {
+    type: String,
+    enum: ['standard', 'deluxe', 'suite', 'studio'],
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['single', 'double', 'twin', 'triple', 'junior_suite', 'executive_suite', 'presidential_suite'],
+    required: true
+  },
+  amenities: [String],
+  price: { type: Number, required: true, min: 0 },
+  totalRooms: { type: Number, required: true, min: 1 },
+  availableRooms: { type: Number, required: true, min: 0 },
+  description: String,
+}, { timestamps: true });
+
 const customerSchema = new Schema<ICustomer>({
   id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
   hotelId: { type: String, required: true, ref: 'Hotel' },
@@ -83,6 +123,9 @@ const customerSchema = new Schema<ICustomer>({
   email: String,
   phone: { type: String, required: true },
   roomNumber: { type: String, required: true },
+  roomTypeId: { type: String, required: true, ref: 'RoomType' },
+  roomTypeName: { type: String, required: true },
+  roomPrice: { type: Number, required: true, min: 0 },
   checkinTime: { type: Date, default: Date.now },
   checkoutTime: Date,
   expectedStayDays: Number,
@@ -119,11 +162,13 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
 // Mongoose Models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
+export const RoomType = mongoose.models.RoomType || mongoose.model<IRoomType>('RoomType', roomTypeSchema);
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
 
 // Type exports for backend
 export type UserType = IUser;
 export type HotelType = IHotel;
+export type RoomTypeType = IRoomType;
 export type CustomerType = ICustomer;
 export type ServiceRequestType = IServiceRequest;

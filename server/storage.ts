@@ -1,10 +1,12 @@
 import {
   User,
   Hotel,
+  RoomType,
   Customer,
   ServiceRequest,
   type UserType,
   type HotelType,
+  type RoomTypeType,
   type CustomerType,
   type ServiceRequestType,
 } from "./models";
@@ -13,6 +15,7 @@ import {
   type InsertHotel,
   type InsertCustomer,
   type InsertServiceRequest,
+  insertRoomTypeSchema,
 } from "@shared/types";
 import "./db"; // Initialize MongoDB connection
 import mongoose from "mongoose";
@@ -27,6 +30,14 @@ export interface IStorage {
   getUserHotel(userId: string): Promise<HotelType | undefined>;
   createHotel(hotel: InsertHotel): Promise<HotelType>;
   updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType>;
+  
+  // Room type operations
+  getRoomTypes(hotelId: string): Promise<RoomTypeType[]>;
+  getRoomType(id: string): Promise<RoomTypeType | undefined>;
+  createRoomType(roomType: any): Promise<RoomTypeType>;
+  updateRoomType(id: string, data: any): Promise<RoomTypeType>;
+  deleteRoomType(id: string): Promise<void>;
+  updateRoomAvailability(roomTypeId: string, change: number): Promise<void>;
   
   // Customer operations
   getCustomers(hotelId: string): Promise<CustomerType[]>;
@@ -47,6 +58,7 @@ export interface IStorage {
     activeCustomers: number;
     pendingRequests: number;
     occupancyRate: number;
+    totalRevenue: number;
   }>;
 }
 
@@ -81,7 +93,109 @@ export class DatabaseStorage implements IStorage {
       id: new mongoose.Types.ObjectId().toString(),
     });
     await hotel.save();
+    
+    // Create default room types for the hotel
+    await this.createDefaultRoomTypes(hotel.id);
+    
     return hotel.toObject() as HotelType;
+  }
+
+  private async createDefaultRoomTypes(hotelId: string): Promise<void> {
+    const defaultRoomTypes = [
+      {
+        hotelId,
+        name: "Standard Single",
+        category: "standard" as const,
+        type: "single" as const,
+        amenities: ["WiFi", "TV", "AC"],
+        price: 2500,
+        totalRooms: 5,
+        availableRooms: 5,
+        description: "Comfortable single occupancy room"
+      },
+      {
+        hotelId,
+        name: "Deluxe Double",
+        category: "deluxe" as const,
+        type: "double" as const,
+        amenities: ["WiFi", "TV", "AC", "Mini Bar", "Balcony"],
+        price: 4500,
+        totalRooms: 5,
+        availableRooms: 5,
+        description: "Spacious double room with premium amenities"
+      },
+      {
+        hotelId,
+        name: "Twin Room",
+        category: "standard" as const,
+        type: "twin" as const,
+        amenities: ["WiFi", "TV", "AC"],
+        price: 3500,
+        totalRooms: 5,
+        availableRooms: 5,
+        description: "Room with two single beds"
+      },
+      {
+        hotelId,
+        name: "Executive Suite",
+        category: "suite" as const,
+        type: "executive_suite" as const,
+        amenities: ["WiFi", "TV", "AC", "Mini Bar", "Living Area", "Premium View"],
+        price: 8500,
+        totalRooms: 5,
+        availableRooms: 5,
+        description: "Luxury suite with separate living area"
+      }
+    ];
+
+    for (const roomType of defaultRoomTypes) {
+      await this.createRoomType(roomType);
+    }
+  }
+
+  // Room type operations
+  async getRoomTypes(hotelId: string): Promise<RoomTypeType[]> {
+    return await RoomType.find({ hotelId })
+      .sort({ category: 1, price: 1 })
+      .lean() as any;
+  }
+
+  async getRoomType(id: string): Promise<RoomTypeType | undefined> {
+    const roomType = await RoomType.findOne({ id }).lean() as RoomTypeType | null;
+    return roomType || undefined;
+  }
+
+  async createRoomType(roomTypeData: any): Promise<RoomTypeType> {
+    const roomType = new RoomType({
+      ...roomTypeData,
+      id: new mongoose.Types.ObjectId().toString(),
+      availableRooms: roomTypeData.totalRooms // Initialize available rooms to total rooms
+    });
+    await roomType.save();
+    return roomType.toObject() as RoomTypeType;
+  }
+
+  async updateRoomType(id: string, data: any): Promise<RoomTypeType> {
+    const roomType = await RoomType.findOneAndUpdate(
+      { id },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as RoomTypeType | null;
+    if (!roomType) {
+      throw new Error('Room type not found');
+    }
+    return roomType;
+  }
+
+  async deleteRoomType(id: string): Promise<void> {
+    await RoomType.deleteOne({ id });
+  }
+
+  async updateRoomAvailability(roomTypeId: string, change: number): Promise<void> {
+    await RoomType.findOneAndUpdate(
+      { id: roomTypeId },
+      { $inc: { availableRooms: change } }
+    );
   }
 
   async updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType> {
@@ -100,7 +214,7 @@ export class DatabaseStorage implements IStorage {
   async getCustomers(hotelId: string): Promise<CustomerType[]> {
     return await Customer.find({ hotelId })
       .sort({ createdAt: -1 })
-      .lean() as CustomerType[];
+      .lean() as any;
   }
 
   async getCustomer(id: string): Promise<CustomerType | undefined> {
@@ -114,6 +228,10 @@ export class DatabaseStorage implements IStorage {
       id: new mongoose.Types.ObjectId().toString(),
     });
     await customer.save();
+    
+    // Decrease room availability
+    await this.updateRoomAvailability(customerData.roomTypeId, -1);
+    
     return customer.toObject() as CustomerType;
   }
 
@@ -137,7 +255,7 @@ export class DatabaseStorage implements IStorage {
   async getServiceRequests(hotelId: string): Promise<ServiceRequestType[]> {
     return await ServiceRequest.find({ hotelId })
       .sort({ requestedAt: -1 })
-      .lean() as ServiceRequestType[];
+      .lean() as any;
   }
 
   async getServiceRequest(id: string): Promise<ServiceRequestType | undefined> {
@@ -172,23 +290,27 @@ export class DatabaseStorage implements IStorage {
     activeCustomers: number;
     pendingRequests: number;
     occupancyRate: number;
+    totalRevenue: number;
   }> {
-    const [totalCustomers, activeCustomers, pendingRequests, hotelData] = await Promise.all([
-      Customer.countDocuments({ hotelId }),
-      Customer.countDocuments({ hotelId, isActive: true }),
-      ServiceRequest.countDocuments({ hotelId, status: 'pending' }),
-      Hotel.findOne({ id: hotelId }).lean() as Promise<HotelType | null>
-    ]);
-
-    const occupancyRate = hotelData?.totalRooms 
-      ? Math.round((activeCustomers / hotelData.totalRooms) * 100)
-      : 0;
+    const totalCustomers = await Customer.countDocuments({ hotelId });
+    const activeCustomers = await Customer.countDocuments({ hotelId, isActive: true });
+    const pendingRequests = await ServiceRequest.countDocuments({ hotelId, status: 'pending' });
+    
+    // Calculate total revenue from all customers
+    const customers = await Customer.find({ hotelId }).lean();
+    const totalRevenue = customers.reduce((sum, customer) => sum + (customer.roomPrice || 0), 0);
+    
+    // Calculate occupancy rate based on room types
+    const roomTypes = await RoomType.find({ hotelId }).lean();
+    const totalRooms = roomTypes.reduce((sum, room) => sum + room.totalRooms, 0);
+    const occupancyRate = totalRooms > 0 ? (activeCustomers / totalRooms) * 100 : 0;
 
     return {
       totalCustomers,
       activeCustomers,
       pendingRequests,
-      occupancyRate,
+      occupancyRate: Math.round(occupancyRate * 100) / 100,
+      totalRevenue,
     };
   }
 }
