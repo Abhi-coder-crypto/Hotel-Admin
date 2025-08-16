@@ -97,7 +97,7 @@ export default function RegistrationForm({ onSuccess, onSwitchToLogin }: Registr
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
-              type="password"
+              type="text"
               {...register("password")}
               placeholder="Create a password"
               data-testid="input-password"
