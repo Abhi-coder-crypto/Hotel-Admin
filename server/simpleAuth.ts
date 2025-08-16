@@ -51,13 +51,18 @@ export async function setupAuth(app: Express) {
           ownerId: "admin",
           address: "123 Main Street, City, State",
           phone: "+1-555-0123",
-          totalRooms: 50
+          totalRooms: 20
         });
       } else {
         // Ensure room types exist for existing hotel
         const roomTypes = await storage.getRoomTypes(hotel.id);
         if (roomTypes.length === 0) {
           await storage.createDefaultRoomTypesForHotel(hotel.id);
+        }
+        
+        // Update hotel total rooms to match actual room types (4 types × 5 rooms = 20)
+        if (hotel.totalRooms !== 20) {
+          await storage.updateHotel(hotel.id, { totalRooms: 20 });
         }
       }
       
