@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const formSchema = insertCustomerSchema.omit({ hotelId: true }).extend({
+const formSchema = insertCustomerSchema.omit({ hotelId: true, roomTypeName: true, roomPrice: true }).extend({
   checkinTime: z.string().optional(),
 });
 
@@ -48,14 +48,26 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
     defaultValues: {
       checkinTime: new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)).toISOString().slice(0, 16),
       isActive: true,
+      name: '',
+      phone: '',
+      email: '',
+      roomTypeId: '',
+      roomNumber: '',
+      expectedStayDays: 1,
     },
   });
 
   const createCustomerMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      console.log('=== MUTATION STARTED ===');
+      console.log('Mutation data received:', data);
+      
       // Find the selected room type to get pricing info
       const selectedRoomType = roomTypes.find((rt: RoomType) => rt.id === data.roomTypeId);
+      console.log('Selected room type:', selectedRoomType);
+      
       if (!selectedRoomType) {
+        console.error('No room type found for ID:', data.roomTypeId);
         throw new Error("Please select a valid room type");
       }
 
@@ -66,8 +78,12 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
         checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(new Date().getTime() + (5.5 * 60 * 60 * 1000)),
       };
       
+      console.log('Final customer data being sent:', customerData);
+      
       const response = await apiRequest("POST", "/api/customers", customerData);
-      return response.json();
+      const result = await response.json();
+      console.log('API response:', result);
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -82,6 +98,11 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       reset();
     },
     onError: (error: any) => {
+      console.error('=== MUTATION ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
       toast({
         title: "Error",
         description: error.message || "Failed to add customer",
@@ -91,9 +112,34 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
   });
 
   const onSubmit = (data: FormData) => {
-    // Debug form data
+    console.log('=== FORM SUBMISSION DEBUG ===');
     console.log('Form data:', data);
     console.log('Form errors:', errors);
+    console.log('Watch values:', {
+      roomTypeId: watch('roomTypeId'),
+      roomNumber: watch('roomNumber'),
+      name: watch('name'),
+      phone: watch('phone')
+    });
+    
+    // Manual validation
+    if (!data.name || data.name.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Customer name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!data.phone || data.phone.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Phone number is required",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!data.roomTypeId) {
       toast({
@@ -113,6 +159,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       return;
     }
     
+    console.log('Calling mutation with data:', data);
     createCustomerMutation.mutate(data);
   };
 
@@ -258,7 +305,10 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                console.log('Cancel clicked');
+                onOpenChange(false);
+              }}
               data-testid="button-cancel"
             >
               Cancel
@@ -268,6 +318,11 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               className="flex-1"
               disabled={createCustomerMutation.isPending}
               data-testid="button-submit"
+              onClick={(e) => {
+                console.log('Submit button clicked!');
+                console.log('Form valid?', Object.keys(errors).length === 0);
+                console.log('Current form errors:', errors);
+              }}
             >
               {createCustomerMutation.isPending ? "Adding..." : "Add Customer"}
             </Button>
