@@ -70,7 +70,7 @@ export const insertHotelSchema = z.object({
 export const insertCustomerSchema = z.object({
   hotelId: z.string(),
   name: z.string().min(1, "Customer name is required"),
-  email: z.string().email().optional(),
+  email: z.string().email().optional().or(z.literal("")),
   phone: z.string().min(1, "Phone number is required"),
   roomNumber: z.string().min(1, "Room number is required"),
   checkinTime: z.date().optional(),
