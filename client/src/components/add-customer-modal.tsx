@@ -11,7 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
-const formSchema = insertCustomerSchema.extend({
+const formSchema = insertCustomerSchema.omit({ hotelId: true }).extend({
   checkinTime: z.string().optional(),
 });
 
@@ -41,13 +41,17 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
 
   const createCustomerMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      console.log("Form data being sent:", data);
       const customerData = {
         ...data,
         checkinTime: data.checkinTime ? new Date(data.checkinTime) : new Date(),
       };
+      console.log("Customer data being sent to API:", customerData);
       
       const response = await apiRequest("POST", "/api/customers", customerData);
-      return response.json();
+      const result = await response.json();
+      console.log("Response from API:", result);
+      return result;
     },
     onSuccess: () => {
       toast({
@@ -59,10 +63,11 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       onOpenChange(false);
       reset();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Customer creation error:", error);
       toast({
         title: "Error",
-        description: "Failed to add customer",
+        description: error.message || "Failed to add customer",
         variant: "destructive",
       });
     },
