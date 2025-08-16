@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Bell, CalendarCheck, ThumbsUp, Clock, User } from "lucide-react";
+import StatsCards from "@/components/stats-cards";
 import AddCustomerModal from "@/components/add-customer-modal";
 import ServiceRequestCard from "@/components/service-request-card";
 import { Customer, ServiceRequest, Hotel } from "@shared/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface HotelStats {
+  totalCustomers: number;
+  activeCustomers: number;
   pendingRequests: number;
+  occupancyRate: number;
+  totalRevenue: number;
 }
 
 export default function Dashboard() {
@@ -27,7 +32,7 @@ export default function Dashboard() {
     queryKey: ["/api/service-requests"],
   });
 
-  const { data: stats } = useQuery<{ pendingRequests: number }>({
+  const { data: stats } = useQuery<HotelStats>({
     queryKey: ["/api/analytics/stats"],
   });
 
@@ -102,7 +107,13 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-6">
-
+        {/* Stats Cards */}
+        {stats && (
+          <StatsCards 
+            stats={stats} 
+            totalRooms={hotel?.totalRooms || 20} 
+          />
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Customers */}
@@ -197,37 +208,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Quick Analytics */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Quick Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <CalendarCheck className="text-blue-600 text-xl" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900">3.2 days</h4>
-                <p className="text-sm text-gray-600">Average Stay Duration</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <ThumbsUp className="text-green-600 text-xl" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900">94%</h4>
-                <p className="text-sm text-gray-600">Customer Satisfaction</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Clock className="text-amber-600 text-xl" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900">12 min</h4>
-                <p className="text-sm text-gray-600">Avg Service Response</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
       </main>
 
       {/* Add Customer Modal */}
