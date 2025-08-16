@@ -31,10 +31,13 @@ export interface IStorage {
   
   // Hotel admin operations
   getHotelAdmin(id: string): Promise<HotelAdminType | undefined>;
+  getHotelAdminById(id: string): Promise<HotelAdminType | undefined>;
   createHotelAdmin(admin: InsertHotelAdmin): Promise<HotelAdminType>;
+  updateHotelAdmin(id: string, data: Partial<InsertHotelAdmin>): Promise<HotelAdminType>;
   
   // Hotel operations
   getUserHotel(userId: string): Promise<HotelType | undefined>;
+  getHotelByAdminId(adminId: string): Promise<HotelType | undefined>;
   createHotel(hotel: InsertHotel): Promise<HotelType>;
   updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType>;
   
@@ -46,6 +49,7 @@ export interface IStorage {
   deleteRoomType(id: string): Promise<void>;
   updateRoomAvailability(roomTypeId: string, change: number): Promise<void>;
   createDefaultRoomTypesForHotel(hotelId: string): Promise<void>;
+  createDefaultRoomTypes(hotelId: string): Promise<void>;
   getAvailableRoomNumbers(hotelId: string): Promise<{ [roomTypeId: string]: string[] }>;
   
   // Customer operations
@@ -96,6 +100,11 @@ export class DatabaseStorage implements IStorage {
     return admin || undefined;
   }
 
+  async getHotelAdminById(id: string): Promise<HotelAdminType | undefined> {
+    const admin = await HotelAdmin.findOne({ id }).lean() as HotelAdminType | null;
+    return admin || undefined;
+  }
+
   async createHotelAdmin(adminData: InsertHotelAdmin): Promise<HotelAdminType> {
     const admin = new HotelAdmin({
       ...adminData,
@@ -105,9 +114,28 @@ export class DatabaseStorage implements IStorage {
     return admin.toObject() as HotelAdminType;
   }
 
+  async updateHotelAdmin(id: string, data: Partial<InsertHotelAdmin>): Promise<HotelAdminType> {
+    const admin = await HotelAdmin.findOneAndUpdate(
+      { id },
+      { $set: data },
+      { new: true }
+    ).lean() as any;
+    
+    if (!admin) {
+      throw new Error("Hotel admin not found");
+    }
+    
+    return admin as HotelAdminType;
+  }
+
   // Hotel operations
   async getUserHotel(userId: string): Promise<HotelType | undefined> {
     const hotel = await Hotel.findOne({ ownerId: userId }).lean() as HotelType | null;
+    return hotel || undefined;
+  }
+
+  async getHotelByAdminId(adminId: string): Promise<HotelType | undefined> {
+    const hotel = await Hotel.findOne({ ownerId: adminId }).lean() as HotelType | null;
     return hotel || undefined;
   }
 
@@ -128,7 +156,7 @@ export class DatabaseStorage implements IStorage {
     return this.createDefaultRoomTypes(hotelId);
   }
 
-  private async createDefaultRoomTypes(hotelId: string): Promise<void> {
+  async createDefaultRoomTypes(hotelId: string): Promise<void> {
     const defaultRoomTypes = [
       {
         hotelId,

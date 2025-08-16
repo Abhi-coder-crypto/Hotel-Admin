@@ -58,6 +58,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Hotel setup route for detailed hotel information
+  app.post('/api/hotel/setup', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const hotelAdmin = await storage.getHotelAdminById(userId);
+      
+      if (!hotelAdmin) {
+        return res.status(404).json({ message: "Hotel admin not found" });
+      }
+
+      // Update hotel admin with additional details
+      const updatedAdmin = await storage.updateHotelAdmin(userId, {
+        phone: req.body.phone,
+        address: req.body.address,
+      });
+
+      // Get or create hotel for this admin
+      let hotel = await storage.getHotelByAdminId(userId);
+      if (!hotel) {
+        // Create hotel if it doesn't exist
+        const hotelData = {
+          name: req.body.hotelName || hotelAdmin.hotelName,
+          ownerId: userId,
+          address: req.body.address,
+          phone: req.body.phone,
+          totalRooms: parseInt(req.body.totalRooms) || 20,
+          city: req.body.city,
+          state: req.body.state,
+          country: req.body.country,
+          pincode: req.body.pincode,
+          hotelType: req.body.hotelType,
+          description: req.body.description,
+          amenities: req.body.amenities || [],
+          checkInTime: req.body.checkInTime || "14:00",
+          checkOutTime: req.body.checkOutTime || "11:00",
+          starRating: req.body.starRating,
+          website: req.body.website,
+          email: req.body.email,
+        };
+
+        hotel = await storage.createHotel(hotelData);
+
+        // Create default room types for the new hotel
+        await storage.createDefaultRoomTypes(hotel.id);
+      }
+
+      res.json({ 
+        success: true, 
+        hotel,
+        message: "Hotel setup completed successfully!" 
+      });
+    } catch (error) {
+      console.error("Error setting up hotel:", error);
+      res.status(500).json({ message: "Failed to complete hotel setup" });
+    }
+  });
+
   // Room type routes
   app.get('/api/room-types', isAuthenticated, async (req: any, res) => {
     try {
