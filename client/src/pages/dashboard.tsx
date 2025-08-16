@@ -5,18 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Bell, CalendarCheck, ThumbsUp, Clock, User } from "lucide-react";
-import StatsCards from "@/components/stats-cards";
 import AddCustomerModal from "@/components/add-customer-modal";
 import ServiceRequestCard from "@/components/service-request-card";
 import { Customer, ServiceRequest, Hotel } from "@shared/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface HotelStats {
-  totalCustomers: number;
-  activeCustomers: number;
   pendingRequests: number;
-  occupancyRate: number;
-  totalRevenue: number;
 }
 
 export default function Dashboard() {
@@ -32,7 +27,7 @@ export default function Dashboard() {
     queryKey: ["/api/service-requests"],
   });
 
-  const { data: stats } = useQuery<HotelStats>({
+  const { data: stats } = useQuery<{ pendingRequests: number }>({
     queryKey: ["/api/analytics/stats"],
   });
 
@@ -107,13 +102,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-6">
-        {/* Stats Cards */}
-        {stats && (
-          <StatsCards 
-            stats={stats} 
-            totalRooms={hotel?.totalRooms || 120} 
-          />
-        )}
+
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Customers */}
