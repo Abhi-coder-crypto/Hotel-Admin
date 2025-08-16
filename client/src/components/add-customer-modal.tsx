@@ -32,6 +32,10 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
     queryKey: ["/api/room-types"],
   });
 
+  const { data: availableRooms = {} } = useQuery<{ [roomTypeId: string]: string[] }>({
+    queryKey: ["/api/available-rooms"],
+  });
+
   const {
     register,
     handleSubmit,
@@ -73,6 +77,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
       queryClient.invalidateQueries({ queryKey: ["/api/room-types"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/available-rooms"] });
       onOpenChange(false);
       reset();
     },
@@ -142,26 +147,32 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
             <Label htmlFor="roomTypeId">Room Type</Label>
             <Select
               value={watch("roomTypeId") || ""}
-              onValueChange={(value) => setValue("roomTypeId", value)}
+              onValueChange={(value) => {
+                setValue("roomTypeId", value);
+                setValue("roomNumber", ""); // Reset room number when room type changes
+              }}
             >
               <SelectTrigger data-testid="select-room-type">
                 <SelectValue placeholder="Select room type" />
               </SelectTrigger>
               <SelectContent>
-                {roomTypes.map((roomType: RoomType) => (
-                  <SelectItem 
-                    key={roomType.id} 
-                    value={roomType.id}
-                    disabled={roomType.availableRooms === 0}
-                  >
-                    <div className="flex flex-col">
-                      <span>{roomType.name}</span>
-                      <span className="text-xs text-gray-500">
-                        ₹{roomType.price}/night • {roomType.availableRooms} available
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
+                {roomTypes.map((roomType: RoomType) => {
+                  const availableCount = availableRooms[roomType.id]?.length || 0;
+                  return (
+                    <SelectItem 
+                      key={roomType.id} 
+                      value={roomType.id}
+                      disabled={availableCount === 0}
+                    >
+                      <div className="flex flex-col">
+                        <span>{roomType.name}</span>
+                        <span className="text-xs text-gray-500">
+                          ₹{roomType.price}/night • {availableCount} available
+                        </span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             {errors.roomTypeId && (
@@ -169,32 +180,42 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {watch("roomTypeId") && (
             <div>
-              <Label htmlFor="roomNumber">Room Number</Label>
-              <Input
-                id="roomNumber"
-                {...register("roomNumber")}
-                placeholder="Room #"
-                data-testid="input-room-number"
-              />
+              <Label htmlFor="roomNumber">Available Room Numbers</Label>
+              <Select
+                value={watch("roomNumber") || ""}
+                onValueChange={(value) => setValue("roomNumber", value)}
+              >
+                <SelectTrigger data-testid="select-room-number">
+                  <SelectValue placeholder="Select room number" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(availableRooms[watch("roomTypeId")] || []).map((roomNumber: string) => (
+                    <SelectItem key={roomNumber} value={roomNumber}>
+                      Room {roomNumber}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.roomNumber && (
                 <p className="text-sm text-red-500 mt-1">{errors.roomNumber.message}</p>
               )}
             </div>
-            <div>
-              <Label htmlFor="expectedStayDays">Expected Stay (days)</Label>
-              <Input
-                id="expectedStayDays"
-                type="number"
-                {...register("expectedStayDays", { valueAsNumber: true })}
-                placeholder="Days"
-                data-testid="input-expected-stay"
-              />
-              {errors.expectedStayDays && (
-                <p className="text-sm text-red-500 mt-1">{errors.expectedStayDays.message}</p>
-              )}
-            </div>
+          )}
+
+          <div>
+            <Label htmlFor="expectedStayDays">Expected Stay (days)</Label>
+            <Input
+              id="expectedStayDays"
+              type="number"
+              {...register("expectedStayDays", { valueAsNumber: true })}
+              placeholder="Days"
+              data-testid="input-expected-stay"
+            />
+            {errors.expectedStayDays && (
+              <p className="text-sm text-red-500 mt-1">{errors.expectedStayDays.message}</p>
+            )}
           </div>
 
           <div>

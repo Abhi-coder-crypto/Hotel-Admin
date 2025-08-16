@@ -39,6 +39,7 @@ export interface IStorage {
   deleteRoomType(id: string): Promise<void>;
   updateRoomAvailability(roomTypeId: string, change: number): Promise<void>;
   createDefaultRoomTypesForHotel(hotelId: string): Promise<void>;
+  getAvailableRoomNumbers(hotelId: string): Promise<{ [roomTypeId: string]: string[] }>;
   
   // Customer operations
   getCustomers(hotelId: string): Promise<CustomerType[]>;
@@ -109,13 +110,14 @@ export class DatabaseStorage implements IStorage {
     const defaultRoomTypes = [
       {
         hotelId,
-        name: "Standard Room (Single/Double)",
+        name: "Standard Room",
         category: "standard" as const,
         type: "single" as const,
         amenities: ["Bed", "TV", "Wi-Fi", "Bathroom"],
         price: 2500,
         totalRooms: 5,
         availableRooms: 5,
+        roomNumbers: ["1", "2", "3", "4", "5"], // Rooms 1-5
         description: "Basic amenities (bed, TV, Wi-Fi, bathroom). Perfect for solo travelers or couples."
       },
       {
@@ -127,6 +129,7 @@ export class DatabaseStorage implements IStorage {
         price: 3500,
         totalRooms: 5,
         availableRooms: 5,
+        roomNumbers: ["6", "7", "8", "9", "10"], // Rooms 6-10
         description: "More spacious than Standard. Includes extras like minibar, better view, larger bed."
       },
       {
@@ -138,6 +141,7 @@ export class DatabaseStorage implements IStorage {
         price: 5500,
         totalRooms: 5,
         availableRooms: 5,
+        roomNumbers: ["11", "12", "13", "14", "15"], // Rooms 11-15
         description: "Separate living area + bedroom. Premium amenities (sofa, work desk, luxury bathroom)."
       },
       {
@@ -149,6 +153,7 @@ export class DatabaseStorage implements IStorage {
         price: 4500,
         totalRooms: 5,
         availableRooms: 5,
+        roomNumbers: ["16", "17", "18", "19", "20"], // Rooms 16-20
         description: "Designed for families. Multiple beds or a combination (e.g., 1 double + 2 singles)."
       }
     ];
@@ -201,6 +206,23 @@ export class DatabaseStorage implements IStorage {
       { id: roomTypeId },
       { $inc: { availableRooms: change } }
     );
+  }
+
+  async getAvailableRoomNumbers(hotelId: string): Promise<{ [roomTypeId: string]: string[] }> {
+    const roomTypes = await this.getRoomTypes(hotelId);
+    const occupiedCustomers = await Customer.find({ hotelId, isActive: true }).lean();
+    const occupiedRoomNumbers = new Set(occupiedCustomers.map(c => c.roomNumber));
+    
+    const availableRoomsByType: { [roomTypeId: string]: string[] } = {};
+    
+    for (const roomType of roomTypes) {
+      const availableRooms = (roomType.roomNumbers || []).filter(
+        roomNumber => !occupiedRoomNumbers.has(roomNumber)
+      );
+      availableRoomsByType[roomType.id] = availableRooms;
+    }
+    
+    return availableRoomsByType;
   }
 
   async updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType> {

@@ -35,6 +35,7 @@ export interface RoomType {
   price: number;
   totalRooms: number;
   availableRooms: number;
+  roomNumbers?: string[]; // Array of room numbers for this room type
   description?: string;
   createdAt: Date;
   updatedAt: Date;

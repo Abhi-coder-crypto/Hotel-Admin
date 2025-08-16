@@ -35,6 +35,7 @@ export interface IRoomType extends Document {
   price: number;
   totalRooms: number;
   availableRooms: number;
+  roomNumbers: string[]; // Array of room numbers for this room type
   description?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -113,6 +114,7 @@ const roomTypeSchema = new Schema<IRoomType>({
   price: { type: Number, required: true, min: 0 },
   totalRooms: { type: Number, required: true, min: 1 },
   availableRooms: { type: Number, required: true, min: 0 },
+  roomNumbers: [String], // Array of room numbers for this room type
   description: String,
 }, { timestamps: true });
 
