@@ -7,13 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import RegistrationForm from "./RegistrationForm";
-import HotelSetupForm from "./HotelSetupForm";
 
 export function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showRegistration, setShowRegistration] = useState(false);
-  const [showHotelSetup, setShowHotelSetup] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -48,29 +46,12 @@ export function LoginForm() {
     queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
   };
 
-  const handleRedirectToSetup = () => {
-    setShowRegistration(false);
-    setShowHotelSetup(true);
-  };
-
-  const handleSetupComplete = () => {
-    setShowHotelSetup(false);
-    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-  };
-
-  if (showHotelSetup) {
-    return (
-      <HotelSetupForm onComplete={handleSetupComplete} />
-    );
-  }
-
   if (showRegistration) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <RegistrationForm
           onSuccess={handleRegistrationSuccess}
           onSwitchToLogin={() => setShowRegistration(false)}
-          onRedirectToSetup={handleRedirectToSetup}
         />
       </div>
     );

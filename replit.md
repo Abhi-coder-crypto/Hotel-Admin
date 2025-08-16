@@ -21,7 +21,8 @@ Preferred communication style: Simple, everyday language.
 - Each hotel can create their own admin account with unique credentials
 - Hotels are isolated - each admin only sees their own hotel's data
 - Registration automatically creates hotel with default room types
-- Login system supports multiple hotels with individual dashboards
+- Simple flow: new hotels register → login with credentials → access dashboard
+- Existing hotels login directly with their credentials
 
 ✅ **Comprehensive Room Management System**
 - Implemented complete room type system with categories (standard, deluxe, suite, studio)

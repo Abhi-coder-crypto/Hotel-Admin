@@ -15,10 +15,9 @@ type FormData = z.infer<typeof insertHotelAdminSchema>;
 interface RegistrationFormProps {
   onSuccess: () => void;
   onSwitchToLogin: () => void;
-  onRedirectToSetup: () => void;
 }
 
-export default function RegistrationForm({ onSuccess, onSwitchToLogin, onRedirectToSetup }: RegistrationFormProps) {
+export default function RegistrationForm({ onSuccess, onSwitchToLogin }: RegistrationFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,10 +39,10 @@ export default function RegistrationForm({ onSuccess, onSwitchToLogin, onRedirec
       if (result.success) {
         toast({
           title: "Account Created Successfully!",
-          description: "Please complete your hotel setup to access the dashboard.",
+          description: "You can now login with your credentials.",
         });
-        // Redirect to hotel setup instead of directly to dashboard
-        onRedirectToSetup();
+        // Go back to login page after successful registration
+        onSwitchToLogin();
       } else {
         throw new Error(result.message || "Registration failed");
       }
@@ -63,7 +62,7 @@ export default function RegistrationForm({ onSuccess, onSwitchToLogin, onRedirec
       <CardHeader className="text-center">
         <CardTitle>Create Hotel Account</CardTitle>
         <CardDescription>
-          Create your account credentials to get started
+          Register your hotel to start managing customers and services
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -155,7 +154,7 @@ export default function RegistrationForm({ onSuccess, onSwitchToLogin, onRedirec
             disabled={isLoading}
             data-testid="button-register"
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading ? "Creating Account..." : "Create Hotel Account"}
           </Button>
 
           <div className="text-center">
