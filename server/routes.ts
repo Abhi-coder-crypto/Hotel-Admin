@@ -230,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Generate QR code for hotel service website  
-      const serviceUrl = `https://hotel-service.replit.app/services?room=${customerData.roomNumber}`;
+      const serviceUrl = `https://YOUR-ACTUAL-SERVICE-WEBSITE.replit.app/services?room=${customerData.roomNumber}`;
       const qrCodeBase64 = await QRCode.toDataURL(serviceUrl, {
         errorCorrectionLevel: 'M',
         margin: 1,
