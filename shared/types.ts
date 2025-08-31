@@ -116,8 +116,10 @@ export const insertRoomTypeSchema = z.object({
 export const insertCustomerSchema = z.object({
   hotelId: z.string(),
   name: z.string().min(1, "Customer name is required"),
-  email: z.string().email().optional().or(z.literal("")),
-  phone: z.string().min(1, "Phone number is required"),
+  email: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
+  phone: z.string()
+    .min(1, "Phone number is required")
+    .regex(/^[+]?[1-9]\d{1,14}$/, "Please enter a valid phone number with country code (e.g., +1234567890)"),
   roomNumber: z.string().min(1, "Room number is required"),
   roomTypeId: z.string().min(1, "Room type is required"),
   roomTypeName: z.string().min(1, "Room type name is required"),

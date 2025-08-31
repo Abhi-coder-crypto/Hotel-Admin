@@ -119,6 +119,30 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       });
       return;
     }
+
+    // Enhanced phone number validation
+    const phoneRegex = /^[+]?[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(data.phone.replace(/\s/g, ''))) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid phone number with country code (e.g., +91 9876543210)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Email validation (if provided)
+    if (data.email && data.email.trim() !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.email)) {
+        toast({
+          title: "Invalid Email",
+          description: "Please enter a valid email address",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     
     if (!data.roomTypeId) {
       toast({
@@ -327,9 +351,12 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               id="phone"
               type="tel"
               {...register("phone")}
-              placeholder="Enter phone number"
+              placeholder="Enter phone number with country code (e.g., +91 9876543210)"
               data-testid="input-customer-phone"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Include country code (e.g., +91 for India, +1 for US/Canada, +44 for UK)
+            </p>
             {errors.phone && (
               <p className="text-sm text-red-500 mt-1">{errors.phone.message}</p>
             )}
@@ -341,9 +368,12 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
               id="email"
               type="email"
               {...register("email")}
-              placeholder="Enter email address"
+              placeholder="Enter valid email address (e.g., guest@example.com)"
               data-testid="input-customer-email"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Optional - Valid email format required if provided
+            </p>
             {errors.email && (
               <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
             )}
