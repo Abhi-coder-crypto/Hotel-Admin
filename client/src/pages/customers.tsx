@@ -13,7 +13,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Plus, Search, User, Phone, Mail, Bed, Calendar, MoreHorizontal, LogOut } from "lucide-react";
+import { Plus, Search, User, Phone, Mail, Bed, Calendar, MoreHorizontal, LogOut, QrCode } from "lucide-react";
 import { Customer } from "@shared/types";
 import { formatDistanceToNow, format } from "date-fns";
 import AddCustomerModal from "@/components/add-customer-modal";
@@ -211,17 +211,49 @@ export default function Customers() {
                           {customer.expectedStayDays ? `${customer.expectedStayDays} days` : "Not specified"}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => checkoutMutation.mutate(customer.id)}
-                            disabled={checkoutMutation.isPending}
-                            className="text-red-600 hover:text-red-700"
-                            data-testid={`button-checkout-${customer.id}`}
-                          >
-                            <LogOut className="w-4 h-4 mr-1" />
-                            Check Out
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            {customer.qrCode && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  // Create a popup window to show QR code
+                                  const qrWindow = window.open('', '_blank', 'width=400,height=600');
+                                  if (qrWindow) {
+                                    qrWindow.document.write(`
+                                      <html>
+                                        <head><title>QR Code - ${customer.name} (Room ${customer.roomNumber})</title></head>
+                                        <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+                                          <h2>Hotel Service QR Code</h2>
+                                          <p><strong>${customer.name}</strong> - Room ${customer.roomNumber}</p>
+                                          <img src="${customer.qrCode}" style="max-width: 300px; border: 2px solid #ccc; padding: 10px; background: white;" />
+                                          <p style="color: #666; margin-top: 20px;">Scan to access hotel services</p>
+                                          <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Print QR Code</button>
+                                        </body>
+                                      </html>
+                                    `);
+                                    qrWindow.document.close();
+                                  }
+                                }}
+                                className="text-blue-600 hover:text-blue-700"
+                                data-testid={`button-qr-${customer.id}`}
+                              >
+                                <QrCode className="w-4 h-4 mr-1" />
+                                QR Code
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => checkoutMutation.mutate(customer.id)}
+                              disabled={checkoutMutation.isPending}
+                              className="text-red-600 hover:text-red-700"
+                              data-testid={`button-checkout-${customer.id}`}
+                            >
+                              <LogOut className="w-4 h-4 mr-1" />
+                              Check Out
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
