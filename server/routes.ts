@@ -166,6 +166,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/recalculate-rooms', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      await storage.recalculateRoomAvailability(hotel.id);
+      res.json({ message: "Room availability recalculated successfully" });
+    } catch (error) {
+      console.error("Error recalculating room availability:", error);
+      res.status(500).json({ message: "Failed to recalculate room availability" });
+    }
+  });
+
   // Customer routes
   app.get('/api/customers', isAuthenticated, async (req: any, res) => {
     try {

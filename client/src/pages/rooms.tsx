@@ -16,7 +16,19 @@ export default function Rooms() {
 
   const handleRefresh = async () => {
     try {
-      // Invalidate all room-related queries to fetch fresh data
+      // First recalculate room availability based on actual active customers
+      const response = await fetch('/api/recalculate-rooms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to recalculate room availability');
+      }
+
+      // Then invalidate all room-related queries to fetch fresh data
       await queryClient.invalidateQueries({ queryKey: ["/api/room-types"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
       await queryClient.invalidateQueries({ queryKey: ["/api/available-rooms"] });
