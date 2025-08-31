@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./multiHotelAuth";
 import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema } from "@shared/types";
 import { z } from "zod";
+import QRCode from "qrcode";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -210,8 +211,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...customerInput, 
         hotelId: hotel.id 
       });
+
+      // Generate QR code for hotel service website
+      const serviceUrl = `https://your-hotel-service.com/service?room_no=${customerData.roomNumber}`;
+      const qrCodeBase64 = await QRCode.toDataURL(serviceUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+
+      // Add QR code to customer data
+      const customerWithQR = { ...customerData, qrCode: qrCodeBase64 };
       
-      const customer = await storage.createCustomer(customerData);
+      const customer = await storage.createCustomer(customerWithQR);
       
       // Broadcast to WebSocket clients
       broadcastToHotel(hotel.id, {

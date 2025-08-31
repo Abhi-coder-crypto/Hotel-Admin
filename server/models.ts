@@ -70,6 +70,7 @@ export interface ICustomer extends Document {
   checkoutTime?: Date;
   expectedStayDays?: number;
   isActive: boolean;
+  qrCode?: string; // base64 QR code string
   createdAt: Date;
   updatedAt: Date;
 }
@@ -157,6 +158,7 @@ const customerSchema = new Schema<ICustomer>({
   checkoutTime: Date,
   expectedStayDays: Number,
   isActive: { type: Boolean, default: true },
+  qrCode: String, // base64 QR code string
 }, { timestamps: true });
 
 const serviceRequestSchema = new Schema<IServiceRequest>({

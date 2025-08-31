@@ -70,6 +70,7 @@ export interface Customer {
   checkoutTime?: Date;
   expectedStayDays?: number;
   isActive: boolean;
+  qrCode?: string; // base64 QR code string
   createdAt: Date;
   updatedAt: Date;
 }
@@ -125,6 +126,7 @@ export const insertCustomerSchema = z.object({
   checkoutTime: z.date().optional(),
   expectedStayDays: z.number().min(1).optional(),
   isActive: z.boolean().optional(),
+  qrCode: z.string().optional(), // base64 QR code string
 });
 
 export const insertHotelAdminSchema = z.object({
