@@ -1,13 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Bed, Users, Crown, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Bed, Users, Crown, Home, RefreshCw } from "lucide-react";
 import { RoomType } from "@shared/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Rooms() {
-  const { data: roomTypes = [] } = useQuery<RoomType[]>({
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  
+  const { data: roomTypes = [], isLoading, isFetching } = useQuery<RoomType[]>({
     queryKey: ["/api/room-types"],
   });
+
+  const handleRefresh = async () => {
+    try {
+      // Invalidate all room-related queries to fetch fresh data
+      await queryClient.invalidateQueries({ queryKey: ["/api/room-types"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/available-rooms"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
+      
+      toast({
+        title: "Refreshed",
+        description: "Room availability updated from database",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh room data",
+        variant: "destructive",
+      });
+    }
+  };
 
   const getRoomIcon = (type: string) => {
     switch (type) {
@@ -58,6 +84,15 @@ export default function Rooms() {
             <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Room Management</h2>
             <p className="text-sm text-gray-600 mt-1">Monitor room availability and types across your hotel</p>
           </div>
+          <Button 
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="flex items-center space-x-2"
+            data-testid="button-refresh-rooms"
+          >
+            <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <span>{isFetching ? 'Refreshing...' : 'Refresh'}</span>
+          </Button>
         </div>
       </header>
 
