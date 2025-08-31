@@ -313,6 +313,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<CustomerType> {
+    // Get the current customer state before updating
+    const currentCustomer = await Customer.findOne({ id }).lean() as CustomerType | null;
+    if (!currentCustomer) {
+      throw new Error('Customer not found');
+    }
+    
     const customer = await Customer.findOneAndUpdate(
       { id },
       { ...data, updatedAt: new Date() },
@@ -321,10 +327,29 @@ export class DatabaseStorage implements IStorage {
     if (!customer) {
       throw new Error('Customer not found');
     }
+    
+    // If customer is being checked out (isActive changed from true to false)
+    if (currentCustomer.isActive === true && data.isActive === false) {
+      // Free up the room by increasing availability
+      await this.updateRoomAvailability(currentCustomer.roomTypeId, +1);
+    }
+    // If customer is being checked back in (isActive changed from false to true)
+    else if (currentCustomer.isActive === false && data.isActive === true) {
+      // Occupy the room by decreasing availability
+      await this.updateRoomAvailability(currentCustomer.roomTypeId, -1);
+    }
+    
     return customer;
   }
 
   async deleteCustomer(id: string): Promise<void> {
+    // Get customer before deleting to free up their room
+    const customer = await Customer.findOne({ id }).lean() as CustomerType | null;
+    if (customer && customer.isActive) {
+      // Free up the room if customer was active
+      await this.updateRoomAvailability(customer.roomTypeId, +1);
+    }
+    
     await Customer.deleteOne({ id });
   }
 
