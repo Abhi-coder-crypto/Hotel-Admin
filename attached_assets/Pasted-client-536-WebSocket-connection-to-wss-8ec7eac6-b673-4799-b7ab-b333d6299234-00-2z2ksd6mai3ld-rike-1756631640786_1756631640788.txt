@@ -1,0 +1,64 @@
+client:536 WebSocket connection to 'wss://8ec7eac6-b673-4799-b7ab-b333d6299234-00-2z2ksd6mai3ld.riker.replit.dev/?token=F_udHCNDdVZi' failed: 
+setupWebSocket @ client:536
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=F_udHCNDdVZi' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chunk-RPCDYKBN.js?v=0cbd071f:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+api/customers/68b4114d17c06ef634729922:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+api/customers/68b4114d17c06ef634729922:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+api/customers/68a0522e09b9f2c21678f4a4:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+api/customers/68a0522e09b9f2c21678f4a4:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+api/customers/68a0522e09b9f2c21678f4a4:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+queryClient.ts:15  PUT https://8ec7eac6-b673-4799-b7ab-b333d6299234-00-2z2ksd6mai3ld.riker.replit.dev/api/customers/68b4114d17c06ef634729922 401 (Unauthorized)
+apiRequest @ queryClient.ts:15
+mutationFn @ customers.tsx:35
+fn @ @tanstack_react-query.js?v=a5c01d6a:1189
+run @ @tanstack_react-query.js?v=a5c01d6a:494
+start @ @tanstack_react-query.js?v=a5c01d6a:536
+execute @ @tanstack_react-query.js?v=a5c01d6a:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=a5c01d6a:2630
+(anonymous) @ @tanstack_react-query.js?v=a5c01d6a:3295
+onClick @ customers.tsx:217
+callCallback2 @ chunk-RPCDYKBN.js?v=0cbd071f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=0cbd071f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=0cbd071f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=0cbd071f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=0cbd071f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=0cbd071f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=0cbd071f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=0cbd071f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=0cbd071f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=0cbd071f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=0cbd071f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=0cbd071f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=0cbd071f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=0cbd071f:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=0cbd071f:5449
+queryClient.ts:15  PUT https://8ec7eac6-b673-4799-b7ab-b333d6299234-00-2z2ksd6mai3ld.riker.replit.dev/api/customers/68b4114d17c06ef634729922 401 (Unauthorized)
+apiRequest @ queryClient.ts:15
+mutationFn @ customers.tsx:35
+fn @ @tanstack_react-query.js?v=a5c01d6a:1189
+run @ @tanstack_react-query.js?v=a5c01d6a:494
+start @ @tanstack_react-query.js?v=a5c01d6a:536
+execute @ @tanstack_react-query.js?v=a5c01d6a:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=a5c01d6a:2630
+(anonymous) @ @tanstack_react-query.js?v=a5c01d6a:3295
+onClick @ customers.tsx:217
+callCallback2 @ chunk-RPCDYKBN.js?v=0cbd071f:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=0cbd071f:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=0cbd071f:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=0cbd071f:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=0cbd071f:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=0cbd071f:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=0cbd071f:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=0cbd071f:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=0cbd071f:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=0cbd071f:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=0cbd071f:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=0cbd071f:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=0cbd071f:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=0cbd071f:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=0cbd071f:5449
