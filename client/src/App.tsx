@@ -7,6 +7,7 @@ import Services from "./pages/services";
 import Contact from "./pages/contact";
 import About from "./pages/about";
 import GuestService from "./pages/guest-service";
+import Dashboard from "./pages/dashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/services" component={Services} />
       <Route path="/service" component={GuestService} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/contact" component={Contact} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
