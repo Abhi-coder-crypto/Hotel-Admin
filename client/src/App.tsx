@@ -8,17 +8,54 @@ import Contact from "./pages/contact";
 import About from "./pages/about";
 import GuestService from "./pages/guest-service";
 import Dashboard from "./pages/dashboard";
+import Customers from "./pages/customers";
+import ServiceRequests from "./pages/service-requests";
+import Rooms from "./pages/rooms";
+import HotelSetup from "./pages/hotel-setup";
+import Sidebar from "./components/sidebar";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/landing" component={Home} />
       <Route path="/services" component={Services} />
       <Route path="/service" component={GuestService} />
-      <Route path="/dashboard" component={Dashboard} />
       <Route path="/contact" component={Contact} />
       <Route path="/about" component={About} />
+      <Route path="/hotel-setup" component={HotelSetup} />
+      <Route path="/">
+        {() => (
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <Dashboard />
+          </div>
+        )}
+      </Route>
+      <Route path="/customers">
+        {() => (
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <Customers />
+          </div>
+        )}
+      </Route>
+      <Route path="/service-requests">
+        {() => (
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <ServiceRequests />
+          </div>
+        )}
+      </Route>
+      <Route path="/rooms">
+        {() => (
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <Rooms />
+          </div>
+        )}
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
