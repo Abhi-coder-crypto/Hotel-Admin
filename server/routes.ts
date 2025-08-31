@@ -248,21 +248,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
+      console.log("Raw request body:", req.body);
+      
       // Parse dates if they're strings
       const customerInput = { ...req.body };
       if (customerInput.checkinTime && typeof customerInput.checkinTime === 'string') {
         customerInput.checkinTime = new Date(customerInput.checkinTime);
       }
       if (customerInput.checkoutTime && typeof customerInput.checkoutTime === 'string') {
+        console.log("Converting checkoutTime from string:", customerInput.checkoutTime);
         customerInput.checkoutTime = new Date(customerInput.checkoutTime);
+        console.log("Converted checkoutTime to:", customerInput.checkoutTime);
       }
+      
+      console.log("Processed customer input:", customerInput);
       
       const updateData = insertCustomerSchema.partial().parse(customerInput);
       const customer = await storage.updateCustomer(id, updateData);
       res.json(customer);
     } catch (error) {
       console.error("Error updating customer:", error);
-      res.status(400).json({ message: "Failed to update customer" });
+      console.error("Error details:", error instanceof Error ? error.message : error);
+      res.status(400).json({ 
+        message: "Failed to update customer",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
