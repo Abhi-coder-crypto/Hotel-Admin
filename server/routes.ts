@@ -247,7 +247,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/customers/:id', isAuthenticated, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const updateData = insertCustomerSchema.partial().parse(req.body);
+      
+      // Parse dates if they're strings
+      const customerInput = { ...req.body };
+      if (customerInput.checkinTime && typeof customerInput.checkinTime === 'string') {
+        customerInput.checkinTime = new Date(customerInput.checkinTime);
+      }
+      if (customerInput.checkoutTime && typeof customerInput.checkoutTime === 'string') {
+        customerInput.checkoutTime = new Date(customerInput.checkoutTime);
+      }
+      
+      const updateData = insertCustomerSchema.partial().parse(customerInput);
       const customer = await storage.updateCustomer(id, updateData);
       res.json(customer);
     } catch (error) {
