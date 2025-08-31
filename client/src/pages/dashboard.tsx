@@ -66,7 +66,7 @@ export default function Dashboard() {
     }
   }, [hotel?.id]);
 
-  const recentCustomers = customers.slice(0, 3);
+  const recentCustomers = customers.filter(customer => customer.isActive).slice(0, 3);
   const pendingRequests = serviceRequests.filter(req => req.status === "pending").slice(0, 3);
 
   return (
