@@ -1,70 +1,117 @@
-# Grand Hotel Service Request System
+# Overview
 
-## Overview
+This is a full-stack hotel management system built with React (frontend) and Express.js (backend). The application provides a complete solution for managing hotel operations including customer management, service requests, and analytics. The system features a modern dashboard interface with real-time updates via WebSocket connections and uses a simple admin/password authentication system (admin/password) for user management. Successfully migrated from Replit Agent to standard Replit environment with MongoDB database persistence.
 
-This is a full-stack web application for a hotel service request system built with modern web technologies. The system allows hotel guests to submit service requests through an elegant web interface, with all requests being logged and stored for hotel staff to manage. The application features a responsive design with a professional hotel branding and provides a seamless user experience for requesting various hotel services like room service, housekeeping, laundry, and more.
-
-## User Preferences
+# User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## System Architecture
+# Recent Changes (August 16, 2025)
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript for type safety and modern development practices
+✅ **Migration Completed Successfully**
+- Migrated hotel management system from Replit Agent to standard Replit environment
+- Implemented multi-hotel authentication system with user registration
+- Created registration form for new hotels with individual admin accounts
+- Fixed customer creation functionality - customers now persist in MongoDB database
+- Customer data persists across multiple hotel websites using shared MongoDB backend
+- All core features working: customer management, service requests, analytics dashboard
+
+✅ **Multi-Hotel Authentication System**
+- Replaced simple admin/password with comprehensive registration system
+- Each hotel can create their own admin account with unique credentials
+- Hotels are isolated - each admin only sees their own hotel's data
+- Registration automatically creates hotel with default room types
+- Simple flow: new hotels register → login with credentials → access dashboard
+- Existing hotels login directly with their credentials
+
+✅ **Comprehensive Room Management System**
+- Implemented complete room type system with categories (standard, deluxe, suite, studio)
+- Added room availability tracking - 5 rooms per type, booking reduces available count
+- Room types include: single, double, twin, triple, and various suites (junior, executive, presidential)
+- Room pricing varies by type and category (₹2,500-8,500 per night)
+- Customer check-in now requires room type selection with dynamic pricing display
+- Created dedicated Rooms page to monitor availability and room types
+- Auto-generates default room types when creating a new hotel
+
+✅ **Revenue Tracking System**
+- Replaced monthly revenue with total revenue calculation based on actual bookings
+- Revenue calculated from individual customer room prices
+- Dashboard displays real-time total revenue from all customer bookings
+- Analytics include comprehensive statistics with revenue metrics
+
+✅ **Technical Fixes Applied**
+- Fixed session secret configuration issue
+- Resolved TypeScript WebSocket errors and MongoDB type casting
+- Fixed customer form validation schema with room type integration
+- Implemented proper date/time handling for check-ins using Indian Standard Time (IST)
+- Real-time updates via WebSocket connections working
+- Added room type API endpoints and storage operations
+
+# System Architecture
+
+## Frontend Architecture
+- **Framework**: React with TypeScript and Vite as the build tool
+- **UI Components**: Built with shadcn/ui component library using Radix UI primitives
+- **Styling**: Tailwind CSS with custom design tokens and CSS variables
+- **State Management**: TanStack Query (React Query) for server state management
 - **Routing**: Wouter for lightweight client-side routing
-- **State Management**: TanStack Query (React Query) for server state management and caching
-- **Styling**: Tailwind CSS with shadcn/ui component library for consistent, modern UI components
-- **Form Management**: React Hook Form with Zod validation for robust form handling
-- **Build Tool**: Vite for fast development and optimized production builds
+- **Form Handling**: React Hook Form with Zod validation
+- **Real-time Communication**: WebSocket client for live updates
 
-### Backend Architecture
-- **Runtime**: Node.js with Express.js framework for REST API endpoints
-- **Language**: TypeScript for type safety across the entire application
-- **API Design**: RESTful endpoints with proper HTTP status codes and error handling
-- **Validation**: Zod schemas for runtime type validation on both client and server
-- **Request Logging**: Custom middleware for API request/response logging
+## Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
+- **API Design**: RESTful API with structured error handling and logging
+- **Real-time Features**: WebSocket server for live notifications and updates
+- **Session Management**: Express sessions with PostgreSQL storage
 
-### Data Storage Solutions
-- **Development**: In-memory storage using Map data structures for rapid development and testing
-- **Production Ready**: Configured for PostgreSQL with Drizzle ORM
-- **Database Access**: Neon Database serverless PostgreSQL integration
-- **Schema Management**: Drizzle Kit for database migrations and schema management
-- **Type Safety**: Drizzle-Zod integration for type-safe database operations
+## Data Storage
+- **Database**: PostgreSQL with Neon serverless hosting
+- **ORM**: Drizzle ORM for type-safe database operations
+- **Schema**: Organized in shared directory for frontend/backend consistency
+- **Migrations**: Drizzle Kit for database schema management
 
-### Key Architectural Decisions
+## Authentication & Authorization
+- **Provider**: Replit's OpenID Connect (OIDC) authentication system
+- **Strategy**: Passport.js with OpenID Connect strategy
+- **Session Storage**: PostgreSQL-backed sessions using connect-pg-simple
+- **User Management**: Automatic user creation and profile management
 
-**Monorepo Structure**: The application uses a monorepo approach with shared TypeScript schemas between client and server, ensuring type consistency and reducing code duplication.
+## Development Architecture
+- **Monorepo Structure**: Client, server, and shared code in organized directories
+- **Hot Reload**: Vite development server with HMR
+- **TypeScript**: Strict type checking across the entire stack
+- **Path Aliases**: Configured for clean imports (`@/`, `@shared/`)
 
-**Component Architecture**: Utilizes shadcn/ui for a comprehensive component library built on Radix UI primitives, providing accessible and customizable components.
+## Key Features
+- **Hotel Management**: Single hotel per user with configurable properties
+- **Customer Management**: Check-in/check-out tracking with guest information
+- **Service Requests**: Categorized requests (maintenance, housekeeping, etc.) with status tracking
+- **Analytics**: Real-time statistics and occupancy metrics
+- **Real-time Updates**: Live notifications for new requests and status changes
 
-**Data Flow**: Implements unidirectional data flow with React Query managing server state, while local component state handles UI interactions.
+# External Dependencies
 
-**Development Experience**: Configured for optimal DX with hot reloading, TypeScript checking, and integrated error overlays in development mode.
+## Database & Storage
+- **Neon Database**: Serverless PostgreSQL hosting with connection pooling
+- **Drizzle ORM**: Type-safe database operations and schema management
 
-## External Dependencies
+## Authentication
+- **Replit Auth**: OpenID Connect authentication provider
+- **Passport.js**: Authentication middleware for Express
 
-### Database & ORM
-- **PostgreSQL**: Primary database for production (via Neon Database)
-- **Drizzle ORM**: Type-safe database operations and query building
-- **connect-pg-simple**: PostgreSQL session store integration
+## UI & Styling
+- **shadcn/ui**: Pre-built accessible component library
+- **Radix UI**: Primitive components for complex UI elements
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide Icons**: Icon library for consistent iconography
 
-### UI & Styling
-- **Radix UI**: Accessible, unstyled UI primitives for complex components
-- **Tailwind CSS**: Utility-first CSS framework for styling
-- **Lucide React**: Modern icon library for consistent iconography
-
-### Development & Build Tools
-- **Vite**: Modern build tool with HMR and optimized bundling
+## Development Tools
+- **Vite**: Frontend build tool and development server
+- **TypeScript**: Type safety across the entire application
 - **ESBuild**: Fast JavaScript bundler for production builds
-- **PostCSS**: CSS processing with Autoprefixer
 
-### Validation & Forms
-- **Zod**: Runtime type validation for forms and API data
-- **React Hook Form**: Performant form library with minimal re-renders
-
-### State Management
-- **TanStack Query**: Server state management with caching and synchronization
-- **React Query**: Data fetching and caching solution
-
-The application is designed to be easily deployable on platforms like Replit with all necessary configuration files included for seamless development and production deployment.
+## Runtime & Hosting
+- **Replit**: Development and hosting platform with built-in authentication
+- **WebSocket**: Real-time communication using native WebSocket API
+- **Express.js**: Web application framework for Node.js
