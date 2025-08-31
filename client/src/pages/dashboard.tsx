@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ interface HotelStats {
 export default function Dashboard() {
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [, setLocation] = useLocation();
 
   // Fetch data
   const { data: customers = [] } = useQuery<Customer[]>({
@@ -127,7 +129,13 @@ export default function Dashboard() {
                 </div>
                 <span>Recent Check-ins</span>
               </CardTitle>
-              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                onClick={() => setLocation("/customers")}
+                data-testid="button-view-all-customers"
+              >
                 View All
               </Button>
             </CardHeader>
