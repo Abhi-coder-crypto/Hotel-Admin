@@ -265,11 +265,16 @@ export class DatabaseStorage implements IStorage {
     // Get all active customers for this hotel
     const activeCustomers = await Customer.find({ hotelId, isActive: true }).lean();
     
+    console.log(`Recalculating for hotel ${hotelId}:`);
+    console.log(`Found ${roomTypes.length} room types`);
+    console.log(`Found ${activeCustomers.length} active customers`);
+    
     // Count occupied rooms by room type
     const occupiedByRoomType: { [roomTypeId: string]: number } = {};
     activeCustomers.forEach(customer => {
       const roomTypeId = customer.roomTypeId;
       occupiedByRoomType[roomTypeId] = (occupiedByRoomType[roomTypeId] || 0) + 1;
+      console.log(`Customer ${customer.name} occupying room type ${roomTypeId}`);
     });
     
     // Update each room type's available rooms
@@ -277,12 +282,15 @@ export class DatabaseStorage implements IStorage {
       const occupiedCount = occupiedByRoomType[roomType.id] || 0;
       const correctAvailableRooms = roomType.totalRooms - occupiedCount;
       
+      console.log(`Room type ${roomType.name}: ${occupiedCount}/${roomType.totalRooms} occupied, setting available to ${correctAvailableRooms}`);
+      
       // Update the room type with correct availability
       await RoomType.findOneAndUpdate(
         { id: roomType.id },
         { $set: { availableRooms: correctAvailableRooms } }
       );
     }
+    console.log('Room recalculation completed');
   }
 
   async getAvailableRoomNumbers(hotelId: string): Promise<{ [roomTypeId: string]: string[] }> {
