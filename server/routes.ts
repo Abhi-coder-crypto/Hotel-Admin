@@ -229,8 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hotelId: hotel.id 
       });
 
-      // Generate QR code for hotel service website
-      const serviceUrl = `https://your-hotel-service.com/service?room_no=${customerData.roomNumber}`;
+      // Generate QR code for hotel service website  
+      const serviceUrl = `https://hotel-service.replit.app/services?room=${customerData.roomNumber}`;
       const qrCodeBase64 = await QRCode.toDataURL(serviceUrl, {
         errorCorrectionLevel: 'M',
         margin: 1,
@@ -294,6 +294,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting customer:", error);
       res.status(400).json({ message: "Failed to delete customer" });
+    }
+  });
+
+  // Enable CORS for public API endpoints
+  app.use('/api/public/*', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+  });
+
+  // Public API endpoint to get guest information by room number (for service website)
+  app.get('/api/public/guest/:roomNumber', async (req, res) => {
+    try {
+      const { roomNumber } = req.params;
+      
+      if (!roomNumber) {
+        return res.status(400).json({ message: "Room number is required" });
+      }
+
+      // Find active customer by room number across all hotels
+      const guest = await storage.getActiveCustomerByRoomNumber(roomNumber);
+      
+      if (!guest) {
+        return res.status(404).json({ message: "No active guest found for this room" });
+      }
+
+      // Get hotel information
+      const hotel = await storage.getUserHotel(guest.hotelId);
+
+      // Return only necessary guest information (don't expose sensitive data)
+      const guestInfo = {
+        name: guest.name,
+        roomNumber: guest.roomNumber,
+        roomTypeName: guest.roomTypeName,
+        checkinTime: guest.checkinTime,
+        hotelId: guest.hotelId,
+        hotelName: hotel?.name || 'Unknown Hotel'
+      };
+
+      res.json(guestInfo);
+    } catch (error) {
+      console.error("Error fetching guest information:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

@@ -55,6 +55,7 @@ export interface IStorage {
   // Customer operations
   getCustomers(hotelId: string): Promise<CustomerType[]>;
   getCustomer(id: string): Promise<CustomerType | undefined>;
+  getActiveCustomerByRoomNumber(roomNumber: string): Promise<CustomerType | undefined>;
   createCustomer(customer: InsertCustomer): Promise<CustomerType>;
   updateCustomer(id: string, data: Partial<InsertCustomer>): Promise<CustomerType>;
   deleteCustomer(id: string): Promise<void>;
@@ -323,6 +324,14 @@ export class DatabaseStorage implements IStorage {
 
   async getCustomer(id: string): Promise<CustomerType | undefined> {
     const customer = await Customer.findOne({ id }).lean() as CustomerType | null;
+    return customer || undefined;
+  }
+
+  async getActiveCustomerByRoomNumber(roomNumber: string): Promise<CustomerType | undefined> {
+    const customer = await Customer.findOne({ 
+      roomNumber, 
+      isActive: true 
+    }).lean() as CustomerType | null;
     return customer || undefined;
   }
 
