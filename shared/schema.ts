@@ -81,6 +81,22 @@ export interface IServiceRequest extends Document {
   updatedAt: Date;
 }
 
+// Admin Service Collection - tracks assigned service requests
+export interface IAdminService extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  serviceRequestId: string;
+  requestType: string; // autofilled from service request
+  assignedTo: string; // person name entered in form
+  timeFrame: string; // timeframe entered in form
+  service: boolean; // true when assigned, false when completed
+  assignedAt: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Mongoose Schemas
 const userSchema = new Schema<IUser>({
   id: { type: String, unique: true, required: true },
@@ -153,6 +169,22 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
   requestedAt: { type: Date, default: Date.now },
   assignedAt: Date,
   completedAt: Date,
+  guestName: String,
+  service: String,
+  notes: String,
+}, { timestamps: true });
+
+// Admin Service Schema
+const adminServiceSchema = new Schema<IAdminService>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  serviceRequestId: { type: String, required: true, ref: 'ServiceRequest' },
+  requestType: { type: String, required: true },
+  assignedTo: { type: String, required: true },
+  timeFrame: { type: String, required: true },
+  service: { type: Boolean, default: true },
+  assignedAt: { type: Date, default: Date.now },
+  completedAt: Date,
 }, { timestamps: true });
 
 // Mongoose Models
@@ -161,6 +193,7 @@ export const HotelAdmin = mongoose.models.HotelAdmin || mongoose.model<IHotelAdm
 export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
+export const AdminService = mongoose.models.AdminService || mongoose.model<IAdminService>('AdminService', adminServiceSchema);
 
 // Zod Validation Schemas
 export const insertHotelSchema = z.object({

@@ -98,6 +98,21 @@ export interface ServiceRequest {
   updatedAt: Date;
 }
 
+export interface AdminService {
+  _id?: string;
+  id: string;
+  hotelId: string;
+  serviceRequestId: string;
+  requestType: string; // autofilled from service request
+  assignedTo: string; // person name entered in form
+  timeFrame: string; // timeframe entered in form
+  service: boolean; // true when assigned, false when completed
+  assignedAt: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // Zod Validation Schemas
 export const insertHotelSchema = z.object({
   name: z.string().min(1, "Hotel name is required"),
@@ -168,7 +183,17 @@ export type UpsertUser = {
   profileImageUrl?: string;
 };
 
+export const insertAdminServiceSchema = z.object({
+  hotelId: z.string(),
+  serviceRequestId: z.string(),
+  requestType: z.string(),
+  assignedTo: z.string().min(1, "Assigned person is required"),
+  timeFrame: z.string().min(1, "Time frame is required"),
+  service: z.boolean().default(true),
+});
+
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertHotelAdmin = z.infer<typeof insertHotelAdminSchema>;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
+export type InsertAdminService = z.infer<typeof insertAdminServiceSchema>;

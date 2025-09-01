@@ -80,7 +80,10 @@ export interface IServiceRequest extends Document {
   id: string;
   hotelId: string;
   customerId?: string;
+  guestName?: string;
   roomNumber: string;
+  service?: string;
+  notes?: string;
   type: 'maintenance' | 'room_service' | 'food_delivery' | 'housekeeping' | 'concierge' | 'other';
   description: string;
   status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
@@ -90,6 +93,21 @@ export interface IServiceRequest extends Document {
   priority: 'low' | 'normal' | 'high' | 'urgent';
   requestedAt: Date;
   assignedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IAdminService extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  serviceRequestId: string;
+  requestType: string;
+  assignedTo: string;
+  timeFrame: string;
+  service: boolean;
+  assignedAt: Date;
   completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -198,6 +216,21 @@ export const RoomType = mongoose.models.RoomType || mongoose.model<IRoomType>('R
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
 
+// Admin Service Schema
+const adminServiceSchema = new Schema<IAdminService>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  serviceRequestId: { type: String, required: true, ref: 'ServiceRequest' },
+  requestType: { type: String, required: true },
+  assignedTo: { type: String, required: true },
+  timeFrame: { type: String, required: true },
+  service: { type: Boolean, default: true },
+  assignedAt: { type: Date, default: Date.now },
+  completedAt: Date,
+}, { timestamps: true });
+
+export const AdminService = mongoose.models.AdminService || mongoose.model<IAdminService>('AdminService', adminServiceSchema);
+
 // Type exports for backend
 export type UserType = IUser;
 export type HotelAdminType = IHotelAdmin;
@@ -205,3 +238,4 @@ export type HotelType = IHotel;
 export type RoomTypeType = IRoomType;
 export type CustomerType = ICustomer;
 export type ServiceRequestType = IServiceRequest;
+export type AdminServiceType = IAdminService;

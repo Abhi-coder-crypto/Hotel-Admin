@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AssignServiceModal from "./assign-service-modal";
 
 interface ServiceRequestCardProps {
   request: ServiceRequest;
@@ -73,7 +75,8 @@ const getStatusColor = (status: string) => {
 export default function ServiceRequestCard({ request }: ServiceRequestCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const Icon = getRequestIcon(request.type);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const Icon = getRequestIcon(request.type || 'other');
 
   const updateRequestMutation = useMutation({
     mutationFn: async (data: { status?: string; assignedTo?: string; assignedBy?: string; completedBy?: string; assignedAt?: Date; completedAt?: Date }) => {
@@ -110,16 +113,42 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
     }
   };
 
+  const completeRequestMutation = useMutation({
+    mutationFn: async () => {
+      // Update service request to completed
+      const serviceResponse = await apiRequest("PUT", `/api/service-requests/${request.id}`, {
+        status: "completed",
+        completedBy: request.assignedTo || "admin",
+      });
+      
+      // Update admin service to mark service: false
+      const adminResponse = await apiRequest("PUT", `/api/admin-services/${request.id}`, {
+        service: false,
+        completedAt: new Date().toISOString(),
+      });
+      
+      return { serviceResponse, adminResponse };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/service-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin-services"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/analytics/stats"] });
+      toast({
+        title: "Service Request Completed",
+        description: "Request marked as completed",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to complete service request",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleComplete = () => {
-    updateRequestMutation.mutate({
-      status: "completed",
-      completedBy: request.assignedTo || "admin", // Person who completed it
-      completedAt: new Date(),
-    });
-    toast({
-      title: "Service Request Completed",
-      description: "Request marked as completed",
-    });
+    completeRequestMutation.mutate();
   };
 
   return (
@@ -208,11 +237,11 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
                     variant="ghost"
                     size="sm"
                     onClick={handleComplete}
-                    disabled={updateRequestMutation.isPending}
+                    disabled={completeRequestMutation.isPending}
                     className="text-green-500 hover:text-green-600 text-xs"
                     data-testid={`button-complete-${request.id}`}
                   >
-                    Complete
+                    {completeRequestMutation.isPending ? "Completing..." : "Complete"}
                   </Button>
                 )}
               </div>
@@ -220,6 +249,12 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
           </div>
         </div>
       </CardContent>
+      
+      <AssignServiceModal
+        request={request}
+        isOpen={showAssignModal}
+        onClose={() => setShowAssignModal(false)}
+      />
     </Card>
   );
 }

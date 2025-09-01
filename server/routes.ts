@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./multiHotelAuth";
-import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema } from "@shared/types";
+import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema, insertAdminServiceSchema } from "@shared/types";
 import { z } from "zod";
 import QRCode from "qrcode";
 
@@ -336,7 +336,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/service-requests/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
-      const updateData = insertServiceRequestSchema.partial().parse(req.body);
+      const updateData = insertServiceRequestSchema.partial().omit({ assignedAt: true, completedAt: true }).parse(req.body);
       const serviceRequest = await storage.updateServiceRequest(id, updateData);
       
       // Broadcast update to WebSocket clients
@@ -352,6 +352,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating service request:", error);
       res.status(400).json({ message: "Failed to update service request" });
+    }
+  });
+
+  // Admin Service routes
+  app.get('/api/admin-services', async (req, res) => {
+    try {
+      const { hotelId } = req.query;
+      if (!hotelId) {
+        return res.status(400).json({ message: "Hotel ID is required" });
+      }
+      const adminServices = await storage.getAdminServices(hotelId as string);
+      res.json(adminServices);
+    } catch (error) {
+      console.error("Error fetching admin services:", error);
+      res.status(500).json({ message: "Failed to fetch admin services" });
+    }
+  });
+
+  app.post('/api/admin-services', async (req, res) => {
+    try {
+      const serviceData = insertAdminServiceSchema.parse(req.body);
+      const adminService = await storage.createAdminService(serviceData);
+      res.json(adminService);
+    } catch (error) {
+      console.error("Error creating admin service:", error);
+      res.status(400).json({ message: "Failed to create admin service" });
+    }
+  });
+
+  app.put('/api/admin-services/:serviceRequestId', async (req, res) => {
+    try {
+      const { serviceRequestId } = req.params;
+      const updateData = insertAdminServiceSchema.partial().parse(req.body);
+      const adminService = await storage.updateAdminService(serviceRequestId, updateData);
+      res.json(adminService);
+    } catch (error) {
+      console.error("Error updating admin service:", error);
+      res.status(400).json({ message: "Failed to update admin service" });
     }
   });
 

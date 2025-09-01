@@ -5,12 +5,14 @@ import {
   RoomType,
   Customer,
   ServiceRequest,
+  AdminService,
   type UserType,
   type HotelAdminType,
   type HotelType,
   type RoomTypeType,
   type CustomerType,
   type ServiceRequestType,
+  type AdminServiceType,
 } from "./models";
 import {
   type UpsertUser,
@@ -18,6 +20,7 @@ import {
   type InsertHotelAdmin,
   type InsertCustomer,
   type InsertServiceRequest,
+  type InsertAdminService,
   insertRoomTypeSchema,
 } from "@shared/types";
 import "./db"; // Initialize MongoDB connection
@@ -64,6 +67,11 @@ export interface IStorage {
   getServiceRequest(id: string): Promise<ServiceRequestType | undefined>;
   createServiceRequest(request: InsertServiceRequest): Promise<ServiceRequestType>;
   updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequestType>;
+  
+  // Admin service operations
+  getAdminServices(hotelId: string): Promise<AdminServiceType[]>;
+  createAdminService(serviceData: InsertAdminService): Promise<AdminServiceType>;
+  updateAdminService(serviceRequestId: string, data: Partial<InsertAdminService>): Promise<AdminServiceType>;
   
   // Analytics
   getHotelStats(hotelId: string): Promise<{
@@ -421,6 +429,34 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Service request not found');
     }
     return request;
+  }
+
+  // Admin service operations
+  async getAdminServices(hotelId: string): Promise<AdminServiceType[]> {
+    return await AdminService.find({ hotelId })
+      .sort({ assignedAt: -1 })
+      .lean() as any;
+  }
+
+  async createAdminService(serviceData: InsertAdminService): Promise<AdminServiceType> {
+    const adminService = new AdminService({
+      ...serviceData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await adminService.save();
+    return adminService.toObject() as AdminServiceType;
+  }
+
+  async updateAdminService(serviceRequestId: string, data: Partial<InsertAdminService>): Promise<AdminServiceType> {
+    const adminService = await AdminService.findOneAndUpdate(
+      { serviceRequestId },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as AdminServiceType | null;
+    if (!adminService) {
+      throw new Error('Admin service not found');
+    }
+    return adminService;
   }
 
   // Analytics
