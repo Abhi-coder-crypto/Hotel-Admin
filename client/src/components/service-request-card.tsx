@@ -76,7 +76,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
   const Icon = getRequestIcon(request.type);
 
   const updateRequestMutation = useMutation({
-    mutationFn: async (data: { status?: string; assignedTo?: string }) => {
+    mutationFn: async (data: { status?: string; assignedTo?: string; assignedBy?: string; completedBy?: string; assignedAt?: Date; completedAt?: Date }) => {
       const response = await apiRequest("PUT", `/api/service-requests/${request.id}`, data);
       return response.json();
     },
@@ -100,6 +100,8 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
       updateRequestMutation.mutate({
         status: "assigned",
         assignedTo: serviceProvider,
+        assignedBy: "admin", // In real app, this would be current user
+        assignedAt: new Date(),
       });
       toast({
         title: "Service Request Assigned",
@@ -111,6 +113,8 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
   const handleComplete = () => {
     updateRequestMutation.mutate({
       status: "completed",
+      completedBy: request.assignedTo || "admin", // Person who completed it
+      completedAt: new Date(),
     });
     toast({
       title: "Service Request Completed",

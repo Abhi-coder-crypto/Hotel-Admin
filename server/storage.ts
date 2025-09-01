@@ -402,9 +402,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateServiceRequest(id: string, data: Partial<InsertServiceRequest>): Promise<ServiceRequestType> {
+    const updateFields: any = { ...data, updatedAt: new Date() };
+    
+    // Add timestamps when status changes
+    if (data.status === 'assigned' && data.assignedTo) {
+      updateFields.assignedAt = new Date();
+    }
+    if (data.status === 'completed') {
+      updateFields.completedAt = new Date();
+    }
+    
     const request = await ServiceRequest.findOneAndUpdate(
       { id },
-      { ...data, updatedAt: new Date() },
+      updateFields,
       { new: true, lean: true }
     ) as ServiceRequestType | null;
     if (!request) {

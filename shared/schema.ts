@@ -68,6 +68,8 @@ export interface IServiceRequest extends Document {
   description: string;
   status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
+  assignedBy?: string;
+  completedBy?: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';
   requestedAt: Date;
   assignedAt?: Date;
@@ -138,6 +140,8 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
     default: 'pending'
   },
   assignedTo: String,
+  assignedBy: String,
+  completedBy: String,
   priority: {
     type: String,
     enum: ['low', 'normal', 'high', 'urgent'],
@@ -196,6 +200,8 @@ export const insertServiceRequestSchema = z.object({
   description: z.string().min(1, "Description is required"),
   status: z.enum(['pending', 'assigned', 'in_progress', 'completed', 'cancelled']).optional(),
   assignedTo: z.string().optional(),
+  assignedBy: z.string().optional(),
+  completedBy: z.string().optional(),
   priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
   requestedAt: z.date().optional(),
   assignedAt: z.date().optional(),

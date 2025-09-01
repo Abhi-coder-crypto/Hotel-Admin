@@ -85,6 +85,8 @@ export interface ServiceRequest {
   description: string;
   status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
+  assignedBy?: string;
+  completedBy?: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';
   requestedAt: Date;
   assignedAt?: Date;
