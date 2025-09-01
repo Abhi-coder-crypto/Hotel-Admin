@@ -63,18 +63,18 @@ Preferred communication style: Simple, everyday language.
 - **Language**: TypeScript with ES modules
 - **API Design**: RESTful API with structured error handling and logging
 - **Real-time Features**: WebSocket server for live notifications and updates
-- **Session Management**: Express sessions with PostgreSQL storage
+- **Session Management**: Express sessions with in-memory storage
 
 ## Data Storage
-- **Database**: PostgreSQL with Neon serverless hosting
-- **ORM**: Drizzle ORM for type-safe database operations
+- **Database**: MongoDB with cloud hosting (MongoDB Atlas)
+- **ODM**: Mongoose for schema-based data modeling and operations
 - **Schema**: Organized in shared directory for frontend/backend consistency
-- **Migrations**: Drizzle Kit for database schema management
+- **Connection**: Secure environment variable-based connection string
 
 ## Authentication & Authorization
 - **Provider**: Replit's OpenID Connect (OIDC) authentication system
 - **Strategy**: Passport.js with OpenID Connect strategy
-- **Session Storage**: PostgreSQL-backed sessions using connect-pg-simple
+- **Session Storage**: Memory-based sessions for development environment
 - **User Management**: Automatic user creation and profile management
 
 ## Development Architecture
@@ -93,8 +93,8 @@ Preferred communication style: Simple, everyday language.
 # External Dependencies
 
 ## Database & Storage
-- **Neon Database**: Serverless PostgreSQL hosting with connection pooling
-- **Drizzle ORM**: Type-safe database operations and schema management
+- **MongoDB Atlas**: Cloud-hosted MongoDB database with connection pooling
+- **Mongoose**: Object Document Modeling library for schema-based operations
 
 ## Authentication
 - **Replit Auth**: OpenID Connect authentication provider
