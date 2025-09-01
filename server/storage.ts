@@ -436,21 +436,32 @@ export class DatabaseStorage implements IStorage {
     }
     
     const request = await ServiceRequest.findOneAndUpdate(
-      { id },
+      { $or: [{ id }, { _id: id }] },
       updateFields,
       { new: true, lean: true }
     ) as ServiceRequestType | null;
     if (!request) {
       throw new Error('Service request not found');
     }
-    return request;
+    
+    // Ensure the returned request has an id field
+    return {
+      ...request,
+      id: request.id || request._id.toString()
+    } as ServiceRequestType;
   }
 
   // Admin service operations
   async getAdminServices(hotelId: string): Promise<AdminServiceType[]> {
-    return await AdminService.find({ hotelId })
+    const adminServices = await AdminService.find({ hotelId })
       .sort({ assignedAt: -1 })
-      .lean() as any;
+      .lean() as any[];
+    
+    // Ensure each admin service has an id field
+    return adminServices.map(service => ({
+      ...service,
+      id: service.id || service._id.toString()
+    })) as AdminServiceType[];
   }
 
   async createAdminService(serviceData: InsertAdminService): Promise<AdminServiceType> {
@@ -464,14 +475,19 @@ export class DatabaseStorage implements IStorage {
 
   async updateAdminService(serviceRequestId: string, data: Partial<InsertAdminService>): Promise<AdminServiceType> {
     const adminService = await AdminService.findOneAndUpdate(
-      { serviceRequestId },
+      { $or: [{ serviceRequestId }, { serviceRequestId: serviceRequestId }] },
       { ...data, updatedAt: new Date() },
       { new: true, lean: true }
     ) as AdminServiceType | null;
     if (!adminService) {
       throw new Error('Admin service not found');
     }
-    return adminService;
+    
+    // Ensure the returned admin service has an id field
+    return {
+      ...adminService,
+      id: adminService.id || adminService._id.toString()
+    } as AdminServiceType;
   }
 
   // Analytics
