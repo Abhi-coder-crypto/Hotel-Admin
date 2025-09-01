@@ -1,0 +1,24 @@
+client:536 WebSocket connection to 'wss://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/?token=J2X5jDGEv-Ri' failed: 
+setupWebSocket @ client:536
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=J2X5jDGEv-Ri' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chunk-RPCDYKBN.js?v=d2578dc0:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react_jsx-dev-runtime.js?v=d2578dc0:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `ServiceRequests`. See https://reactjs.org/link/warning-keys for more information.
+    at ServiceRequestCard (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/src/components/service-request-card.tsx?t=1756705987861:83:46)
+    at ServiceRequests (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/src/pages/service-requests.tsx?t=1756705987861:28:39)
+    at Route (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:323:16)
+    at Switch (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:379:17)
+    at div
+    at div
+    at AppContent (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/src/App.tsx?t=1756705987861&v=icBXuheWR1vhtsWeGHkQ:35:42)
+    at Provider (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=d2578dc0:38:15)
+    at TooltipProvider (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2578dc0:60:5)
+    at QueryClientProvider (https://9c9e0798-dc8c-4643-aa8e-a083954196d4-00-3gnf98lesw1h8.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d2578dc0:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=d2578dc0:64
+api/admin-services:1  Failed to load resource: the server responded with a status of 400 (Bad Request)
+api/admin-services:1  Failed to load resource: the server responded with a status of 400 (Bad Request)

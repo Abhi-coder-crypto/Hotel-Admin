@@ -390,14 +390,29 @@ export class DatabaseStorage implements IStorage {
 
   // Service request operations
   async getServiceRequests(hotelId: string): Promise<ServiceRequestType[]> {
-    return await ServiceRequest.find({ hotelId })
+    const requests = await ServiceRequest.find({ hotelId })
       .sort({ requestedAt: -1 })
-      .lean() as any;
+      .lean() as any[];
+    
+    // Ensure each request has an id field (use _id if id is missing)
+    return requests.map(request => ({
+      ...request,
+      id: request.id || request._id.toString()
+    })) as ServiceRequestType[];
   }
 
   async getServiceRequest(id: string): Promise<ServiceRequestType | undefined> {
-    const request = await ServiceRequest.findOne({ id }).lean() as ServiceRequestType | null;
-    return request || undefined;
+    const request = await ServiceRequest.findOne({ 
+      $or: [{ id }, { _id: id }] 
+    }).lean() as ServiceRequestType | null;
+    
+    if (!request) return undefined;
+    
+    // Ensure the request has an id field
+    return {
+      ...request,
+      id: request.id || request._id.toString()
+    } as ServiceRequestType;
   }
 
   async createServiceRequest(requestData: InsertServiceRequest): Promise<ServiceRequestType> {
