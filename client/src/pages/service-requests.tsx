@@ -16,9 +16,9 @@ export default function ServiceRequests() {
   });
 
   const filteredRequests = serviceRequests.filter(request =>
-    request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.type.toLowerCase().includes(searchTerm.toLowerCase())
+    (request.description ? request.description.toLowerCase().includes(searchTerm.toLowerCase()) : false) ||
+    (request.roomNumber ? request.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) : false) ||
+    (request.type ? request.type.toLowerCase().includes(searchTerm.toLowerCase()) : false)
   );
 
   const pendingRequests = filteredRequests.filter(req => req.status === "pending");
