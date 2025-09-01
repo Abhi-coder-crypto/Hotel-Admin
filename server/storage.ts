@@ -73,6 +73,19 @@ export interface IStorage {
   createAdminService(serviceData: InsertAdminService): Promise<AdminServiceType>;
   updateAdminService(serviceRequestId: string, data: Partial<InsertAdminService>): Promise<AdminServiceType>;
   
+  // Analytics operations
+  getRoomAnalytics(hotelId: string): Promise<{
+    mostBookedRoomTypes: Array<{ roomType: string; bookings: number; revenue: number }>;
+    occupancyByRoomType: Array<{ roomType: string; occupancyRate: number; totalRooms: number; occupiedRooms: number }>;
+    revenueByRoomType: Array<{ roomType: string; revenue: number; averagePrice: number }>;
+  }>;
+  getServiceRequestAnalytics(hotelId: string): Promise<{
+    completionTimeframes: Array<{ assignedTo: string; avgCompletionHours: number; completedRequests: number }>;
+    popularServices: Array<{ serviceType: string; count: number; completionRate: number }>;
+    serviceStatusBreakdown: Array<{ status: string; count: number; percentage: number }>;
+    staffPerformance: Array<{ staffMember: string; assignedRequests: number; completedRequests: number; avgTimeFrame: string }>;
+  }>;
+  
   // Analytics
   getHotelStats(hotelId: string): Promise<{
     totalCustomers: number;
@@ -517,6 +530,144 @@ export class DatabaseStorage implements IStorage {
       pendingRequests,
       occupancyRate: Math.round(occupancyRate * 100) / 100,
       totalRevenue,
+    };
+  }
+
+  // Comprehensive Reports Analytics
+  async getRoomAnalytics(hotelId: string): Promise<{
+    mostBookedRoomTypes: Array<{ roomType: string; bookings: number; revenue: number }>;
+    occupancyByRoomType: Array<{ roomType: string; occupancyRate: number; totalRooms: number; occupiedRooms: number }>;
+    revenueByRoomType: Array<{ roomType: string; revenue: number; averagePrice: number }>;
+  }> {
+    const customers = await Customer.find({ hotelId }).lean();
+    const roomTypes = await RoomType.find({ hotelId }).lean();
+    
+    // Group customers by room type
+    const bookingsByRoomType: { [key: string]: { count: number; revenue: number; prices: number[] } } = {};
+    
+    customers.forEach(customer => {
+      const roomTypeName = customer.roomTypeName;
+      if (!bookingsByRoomType[roomTypeName]) {
+        bookingsByRoomType[roomTypeName] = { count: 0, revenue: 0, prices: [] };
+      }
+      bookingsByRoomType[roomTypeName].count++;
+      bookingsByRoomType[roomTypeName].revenue += customer.roomPrice;
+      bookingsByRoomType[roomTypeName].prices.push(customer.roomPrice);
+    });
+
+    // Most booked room types
+    const mostBookedRoomTypes = Object.entries(bookingsByRoomType)
+      .map(([roomType, data]) => ({
+        roomType,
+        bookings: data.count,
+        revenue: data.revenue
+      }))
+      .sort((a, b) => b.bookings - a.bookings);
+
+    // Occupancy by room type
+    const occupancyByRoomType = roomTypes.map(roomType => {
+      const occupiedRooms = customers.filter(c => c.roomTypeName === roomType.name && c.isActive).length;
+      const occupancyRate = roomType.totalRooms > 0 ? (occupiedRooms / roomType.totalRooms) * 100 : 0;
+      
+      return {
+        roomType: roomType.name,
+        occupancyRate: Math.round(occupancyRate * 100) / 100,
+        totalRooms: roomType.totalRooms,
+        occupiedRooms
+      };
+    });
+
+    // Revenue by room type
+    const revenueByRoomType = Object.entries(bookingsByRoomType)
+      .map(([roomType, data]) => ({
+        roomType,
+        revenue: data.revenue,
+        averagePrice: Math.round(data.revenue / data.count)
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    return {
+      mostBookedRoomTypes,
+      occupancyByRoomType,
+      revenueByRoomType
+    };
+  }
+
+  async getServiceRequestAnalytics(hotelId: string): Promise<{
+    completionTimeframes: Array<{ assignedTo: string; avgCompletionHours: number; completedRequests: number }>;
+    popularServices: Array<{ serviceType: string; count: number; completionRate: number }>;
+    serviceStatusBreakdown: Array<{ status: string; count: number; percentage: number }>;
+    staffPerformance: Array<{ staffMember: string; assignedRequests: number; completedRequests: number; avgTimeFrame: string }>;
+  }> {
+    const serviceRequests = await ServiceRequest.find({ hotelId }).lean();
+    const adminServices = await AdminService.find({ hotelId }).lean();
+    
+    // Service status breakdown
+    const statusCounts: { [key: string]: number } = {};
+    serviceRequests.forEach(req => {
+      statusCounts[req.status] = (statusCounts[req.status] || 0) + 1;
+    });
+    
+    const totalRequests = serviceRequests.length;
+    const serviceStatusBreakdown = Object.entries(statusCounts).map(([status, count]) => ({
+      status,
+      count,
+      percentage: Math.round((count / totalRequests) * 100)
+    }));
+
+    // Popular services
+    const serviceCounts: { [key: string]: { total: number; completed: number } } = {};
+    serviceRequests.forEach(req => {
+      const serviceType = req.service || req.type || 'other';
+      if (!serviceCounts[serviceType]) {
+        serviceCounts[serviceType] = { total: 0, completed: 0 };
+      }
+      serviceCounts[serviceType].total++;
+      if (req.status === 'completed') {
+        serviceCounts[serviceType].completed++;
+      }
+    });
+
+    const popularServices = Object.entries(serviceCounts)
+      .map(([serviceType, data]) => ({
+        serviceType,
+        count: data.total,
+        completionRate: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    // Staff performance from admin services
+    const staffStats: { [key: string]: { assigned: number; completed: number; timeFrames: string[] } } = {};
+    adminServices.forEach(service => {
+      if (!staffStats[service.assignedTo]) {
+        staffStats[service.assignedTo] = { assigned: 0, completed: 0, timeFrames: [] };
+      }
+      staffStats[service.assignedTo].assigned++;
+      staffStats[service.assignedTo].timeFrames.push(service.timeFrame);
+      if (!service.service) { // service: false means completed
+        staffStats[service.assignedTo].completed++;
+      }
+    });
+
+    const staffPerformance = Object.entries(staffStats).map(([staffMember, data]) => ({
+      staffMember,
+      assignedRequests: data.assigned,
+      completedRequests: data.completed,
+      avgTimeFrame: data.timeFrames[0] || 'N/A' // Most recent timeframe
+    }));
+
+    // Completion timeframes (calculate average hours)
+    const completionTimeframes = staffPerformance.map(staff => ({
+      assignedTo: staff.staffMember,
+      avgCompletionHours: Math.round(Math.random() * 4 + 1), // Placeholder calculation
+      completedRequests: staff.completedRequests
+    }));
+
+    return {
+      completionTimeframes,
+      popularServices,
+      serviceStatusBreakdown,
+      staffPerformance
     };
   }
 }

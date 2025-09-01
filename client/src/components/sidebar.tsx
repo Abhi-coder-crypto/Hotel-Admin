@@ -30,7 +30,6 @@ export default function Sidebar({ hotelName = "Hotel", pendingRequestsCount = 0 
     { name: "Customers", href: "/customers", icon: Users },
     { name: "Rooms", href: "/rooms", icon: Bed },
     { name: "Service Requests", href: "/service-requests", icon: Bell, badge: pendingRequestsCount },
-    { name: "Analytics", href: "/analytics", icon: BarChart3 },
     { name: "Reports", href: "/reports", icon: FileText },
   ];
 

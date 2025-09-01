@@ -411,6 +411,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/analytics/rooms', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const roomAnalytics = await storage.getRoomAnalytics(hotel.id);
+      res.json(roomAnalytics);
+    } catch (error) {
+      console.error("Error fetching room analytics:", error);
+      res.status(500).json({ message: "Failed to fetch room analytics" });
+    }
+  });
+
+  app.get('/api/analytics/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const serviceAnalytics = await storage.getServiceRequestAnalytics(hotel.id);
+      res.json(serviceAnalytics);
+    } catch (error) {
+      console.error("Error fetching service analytics:", error);
+      res.status(500).json({ message: "Failed to fetch service analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket setup

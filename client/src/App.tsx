@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Customers from "@/pages/customers";
 import Rooms from "@/pages/rooms";
 import ServiceRequests from "@/pages/service-requests";
+import Reports from "@/pages/reports";
 import HotelSetup from "@/pages/hotel-setup";
 import Sidebar from "@/components/sidebar";
 import NotFound from "@/pages/not-found";
@@ -69,8 +70,7 @@ function AppContent() {
           <Route path="/customers" component={Customers} />
           <Route path="/service-requests" component={ServiceRequests} />
           <Route path="/rooms" component={Rooms} />
-          <Route path="/analytics" component={() => <div className="p-6">Analytics page coming soon...</div>} />
-          <Route path="/reports" component={() => <div className="p-6">Reports page coming soon...</div>} />
+          <Route path="/reports" component={Reports} />
           <Route component={NotFound} />
         </Switch>
       </div>
