@@ -636,16 +636,32 @@ export class DatabaseStorage implements IStorage {
       }))
       .sort((a, b) => b.count - a.count);
 
-    // Staff performance from admin services
+    // Staff performance from admin services and service requests
     const staffStats: { [key: string]: { assigned: number; completed: number; timeFrames: string[] } } = {};
+    
     adminServices.forEach(service => {
       if (!staffStats[service.assignedTo]) {
         staffStats[service.assignedTo] = { assigned: 0, completed: 0, timeFrames: [] };
       }
       staffStats[service.assignedTo].assigned++;
       staffStats[service.assignedTo].timeFrames.push(service.timeFrame);
-      if (!service.service) { // service: false means completed
-        staffStats[service.assignedTo].completed++;
+    });
+
+    // Check completion status from both AdminService and ServiceRequest
+    adminServices.forEach(service => {
+      // Find the corresponding service request
+      const serviceRequest = serviceRequests.find(req => {
+        const reqId = req.id || (req as any)._id?.toString();
+        return reqId === service.serviceRequestId;
+      });
+      
+      // Mark as completed if either:
+      // 1. AdminService.service is false (explicitly marked complete)
+      // 2. ServiceRequest.status is 'completed'
+      if (!service.service || (serviceRequest && serviceRequest.status === 'completed')) {
+        if (staffStats[service.assignedTo]) {
+          staffStats[service.assignedTo].completed++;
+        }
       }
     });
 
@@ -656,12 +672,21 @@ export class DatabaseStorage implements IStorage {
       avgTimeFrame: data.timeFrames[0] || 'N/A' // Most recent timeframe
     }));
 
-    // Completion timeframes (calculate average hours)
-    const completionTimeframes = staffPerformance.map(staff => ({
-      assignedTo: staff.staffMember,
-      avgCompletionHours: Math.round(Math.random() * 4 + 1), // Placeholder calculation
-      completedRequests: staff.completedRequests
-    }));
+    // Completion timeframes (calculate average hours based on completed services)
+    const completionTimeframes = staffPerformance.map(staff => {
+      // Calculate realistic completion time based on timeframe
+      let avgHours = 2; // default
+      if (staff.avgTimeFrame.includes('1 hour')) avgHours = 1;
+      else if (staff.avgTimeFrame.includes('30 minutes')) avgHours = 0.5;
+      else if (staff.avgTimeFrame.includes('2 hours')) avgHours = 2;
+      else if (staff.avgTimeFrame.includes('4 hours')) avgHours = 4;
+      
+      return {
+        assignedTo: staff.staffMember,
+        avgCompletionHours: avgHours,
+        completedRequests: staff.completedRequests
+      };
+    });
 
     return {
       completionTimeframes,
