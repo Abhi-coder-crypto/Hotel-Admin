@@ -97,20 +97,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
   });
 
   const handleAssign = () => {
-    // In a real app, this would open a modal to select service provider
-    const serviceProvider = prompt("Enter service provider name:");
-    if (serviceProvider) {
-      updateRequestMutation.mutate({
-        status: "assigned",
-        assignedTo: serviceProvider,
-        assignedBy: "admin", // In real app, this would be current user
-        assignedAt: new Date(),
-      });
-      toast({
-        title: "Service Request Assigned",
-        description: `Assigned to ${serviceProvider}`,
-      });
-    }
+    setShowAssignModal(true);
   };
 
   const completeRequestMutation = useMutation({
@@ -119,12 +106,13 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
       const serviceResponse = await apiRequest("PUT", `/api/service-requests/${request.id}`, {
         status: "completed",
         completedBy: request.assignedTo || "admin",
+        completedAt: new Date(),
       });
       
-      // Update admin service to mark service: false
+      // Update admin service to mark service: false (completion)
       const adminResponse = await apiRequest("PUT", `/api/admin-services/${request.id}`, {
         service: false,
-        completedAt: new Date().toISOString(),
+        completedAt: new Date(),
       });
       
       return { serviceResponse, adminResponse };
