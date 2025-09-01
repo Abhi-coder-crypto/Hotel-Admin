@@ -99,6 +99,28 @@ export default function AssignServiceModal({ request, isOpen, onClose }: AssignS
           </div>
           
           <div>
+            <Label htmlFor="customerName">Customer Name</Label>
+            <Input
+              id="customerName"
+              value={request.guestName || "Not specified"}
+              disabled
+              className="bg-gray-50"
+              data-testid="input-customer-name"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="roomNumber">Room Number</Label>
+            <Input
+              id="roomNumber"
+              value={request.roomNumber}
+              disabled
+              className="bg-gray-50"
+              data-testid="input-room-number"
+            />
+          </div>
+          
+          <div>
             <Label htmlFor="assignedTo">Assign to Person</Label>
             <Input
               id="assignedTo"
