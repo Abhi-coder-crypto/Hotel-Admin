@@ -1,146 +1,265 @@
-import { pgTable, varchar, text, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import mongoose, { Schema, Document } from 'mongoose';
 import { z } from "zod";
 
-// PostgreSQL Tables using Drizzle ORM
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: text("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+// MongoDB Document Interfaces
+export interface IUser extends Document {
+  _id: string;
+  id: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const hotelAdmins = pgTable("hotel_admins", {
-  id: varchar("id").primaryKey(),
-  username: varchar("username").unique().notNull(),
-  password: varchar("password").notNull(),
-  hotelName: varchar("hotel_name").notNull(),
-  email: varchar("email").unique().notNull(),
-  phone: varchar("phone"),
-  address: text("address"),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface IHotelAdmin extends Document {
+  _id: string;
+  id: string;
+  username: string;
+  password: string;
+  hotelName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const hotels = pgTable("hotels", {
-  id: varchar("id").primaryKey(),
-  name: varchar("name").notNull(),
-  ownerId: varchar("owner_id").notNull(),
-  address: text("address"),
-  phone: varchar("phone"),
-  totalRooms: integer("total_rooms").default(0).notNull(),
-  city: varchar("city"),
-  state: varchar("state"),
-  country: varchar("country"),
-  pincode: varchar("pincode"),
-  hotelType: varchar("hotel_type"),
-  description: text("description"),
-  amenities: jsonb("amenities").default([]),
-  checkInTime: varchar("check_in_time").default("14:00"),
-  checkOutTime: varchar("check_out_time").default("11:00"),
-  starRating: integer("star_rating"),
-  website: varchar("website"),
-  email: varchar("email"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface IHotel extends Document {
+  _id: string;
+  id: string;
+  name: string;
+  ownerId: string;
+  address?: string;
+  phone?: string;
+  totalRooms: number;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  hotelType?: string;
+  description?: string;
+  amenities?: string[];
+  checkInTime?: string;
+  checkOutTime?: string;
+  starRating?: number;
+  website?: string;
+  email?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const roomTypes = pgTable("room_types", {
-  id: varchar("id").primaryKey(),
-  hotelId: varchar("hotel_id").notNull(),
-  name: varchar("name").notNull(),
-  category: varchar("category").notNull(),
-  type: varchar("type").notNull(),
-  amenities: jsonb("amenities").default([]),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  totalRooms: integer("total_rooms").notNull(),
-  availableRooms: integer("available_rooms").notNull(),
-  roomNumbers: jsonb("room_numbers").default([]),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface IRoomType extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  name: string;
+  category: 'standard' | 'deluxe' | 'suite' | 'studio';
+  type: 'single' | 'double' | 'twin' | 'triple' | 'junior_suite' | 'executive_suite' | 'presidential_suite';
+  amenities: string[];
+  price: number;
+  totalRooms: number;
+  availableRooms: number;
+  roomNumbers?: string[];
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const customers = pgTable("customers", {
-  id: varchar("id").primaryKey(),
-  hotelId: varchar("hotel_id").notNull(),
-  name: varchar("name").notNull(),
-  email: varchar("email"),
-  phone: varchar("phone").notNull(),
-  roomNumber: varchar("room_number").notNull(),
-  roomTypeId: varchar("room_type_id").notNull(),
-  roomTypeName: varchar("room_type_name").notNull(),
-  roomPrice: decimal("room_price", { precision: 10, scale: 2 }).notNull(),
-  checkinTime: timestamp("checkin_time").defaultNow().notNull(),
-  checkoutTime: timestamp("checkout_time"),
-  expectedStayDays: integer("expected_stay_days"),
-  isActive: boolean("is_active").default(true).notNull(),
-  qrCode: text("qr_code"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface ICustomer extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  name: string;
+  email?: string;
+  phone: string;
+  roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  roomPrice: number;
+  checkinTime: Date;
+  checkoutTime?: Date;
+  expectedStayDays?: number;
+  isActive: boolean;
+  qrCode?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const serviceRequests = pgTable("service_requests", {
-  id: varchar("id").primaryKey(),
-  hotelId: varchar("hotel_id").notNull(),
-  customerId: varchar("customer_id"),
-  guestName: varchar("guest_name"),
-  roomNumber: varchar("room_number").notNull(),
-  service: varchar("service"),
-  notes: text("notes"),
-  type: varchar("type").notNull(),
-  description: text("description").notNull(),
-  status: varchar("status").default("pending").notNull(),
-  assignedTo: varchar("assigned_to"),
-  assignedBy: varchar("assigned_by"),
-  completedBy: varchar("completed_by"),
-  priority: varchar("priority").default("normal").notNull(),
-  requestedAt: timestamp("requested_at").defaultNow().notNull(),
-  assignedAt: timestamp("assigned_at"),
-  completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export interface IServiceRequest extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  customerId?: string;
+  guestName?: string;
+  roomNumber: string;
+  service: string; // This is what's actually stored in MongoDB
+  notes?: string; // Additional notes field from MongoDB
+  type?: 'maintenance' | 'room_service' | 'food_delivery' | 'housekeeping' | 'concierge' | 'other';
+  description?: string;
+  status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
+  assignedTo?: string;
+  assignedBy?: string;
+  completedBy?: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  requestedAt: Date;
+  assignedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-export const adminServices = pgTable("admin_services", {
-  id: varchar("id").primaryKey(),
-  hotelId: varchar("hotel_id").notNull(),
-  serviceRequestId: varchar("service_request_id").notNull(),
-  requestType: varchar("request_type").notNull(),
-  assignedTo: varchar("assigned_to").notNull(),
-  timeFrame: varchar("time_frame").notNull(),
-  service: boolean("service").default(true).notNull(),
-  assignedAt: timestamp("assigned_at").defaultNow().notNull(),
-  completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+// Admin Service Collection - tracks assigned service requests
+export interface IAdminService extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  serviceRequestId: string;
+  requestType: string; // autofilled from service request
+  assignedTo: string; // person name entered in form
+  timeFrame: string; // timeframe entered in form
+  service: boolean; // true when assigned, false when completed
+  assignedAt: Date;
+  completedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-// Create Zod schemas from Drizzle tables
-export const insertUserSchema = createInsertSchema(users);
-export const selectUserSchema = createSelectSchema(users);
+// Mongoose Schemas
+const userSchema = new Schema<IUser>({
+  id: { type: String, unique: true, required: true },
+  email: { type: String, unique: true, sparse: true },
+  firstName: String,
+  lastName: String,
+  profileImageUrl: String,
+}, { timestamps: true });
 
-export const insertHotelAdminSchema = createInsertSchema(hotelAdmins);
-export const selectHotelAdminSchema = createSelectSchema(hotelAdmins);
+const hotelAdminSchema = new Schema<IHotelAdmin>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  hotelName: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  phone: String,
+  address: String,
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
 
-export const insertHotelSchema = createInsertSchema(hotels);
-export const selectHotelSchema = createSelectSchema(hotels);
+const hotelSchema = new Schema<IHotel>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  name: { type: String, required: true },
+  ownerId: { type: String, required: true, ref: 'User' },
+  address: String,
+  phone: String,
+  totalRooms: { type: Number, default: 0 },
+  city: String,
+  state: String,
+  country: String,
+  pincode: String,
+  hotelType: String,
+  description: String,
+  amenities: [String],
+  checkInTime: { type: String, default: "14:00" },
+  checkOutTime: { type: String, default: "11:00" },
+  starRating: Number,
+  website: String,
+  email: String,
+}, { timestamps: true });
 
-export const insertRoomTypeSchema = createInsertSchema(roomTypes);
-export const selectRoomTypeSchema = createSelectSchema(roomTypes);
+const roomTypeSchema = new Schema<IRoomType>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  name: { type: String, required: true },
+  category: {
+    type: String,
+    enum: ['standard', 'deluxe', 'suite', 'studio'],
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['single', 'double', 'twin', 'triple', 'junior_suite', 'executive_suite', 'presidential_suite'],
+    required: true
+  },
+  amenities: [String],
+  price: { type: Number, required: true, min: 0 },
+  totalRooms: { type: Number, required: true, min: 1 },
+  availableRooms: { type: Number, required: true, min: 0 },
+  roomNumbers: [String],
+  description: String,
+}, { timestamps: true });
 
-export const insertCustomerSchema = createInsertSchema(customers);
-export const selectCustomerSchema = createSelectSchema(customers);
+const customerSchema = new Schema<ICustomer>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  name: { type: String, required: true },
+  email: String,
+  phone: { type: String, required: true },
+  roomNumber: { type: String, required: true },
+  roomTypeId: { type: String, required: true, ref: 'RoomType' },
+  roomTypeName: { type: String, required: true },
+  roomPrice: { type: Number, required: true, min: 0 },
+  checkinTime: { type: Date, default: Date.now },
+  checkoutTime: Date,
+  expectedStayDays: Number,
+  isActive: { type: Boolean, default: true },
+  qrCode: String,
+}, { timestamps: true });
 
-export const insertServiceRequestSchema = createInsertSchema(serviceRequests);
-export const selectServiceRequestSchema = createSelectSchema(serviceRequests);
+const serviceRequestSchema = new Schema<IServiceRequest>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  customerId: { type: String, ref: 'Customer' },
+  roomNumber: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ['maintenance', 'room_service', 'food_delivery', 'housekeeping', 'concierge', 'other'],
+    required: true
+  },
+  description: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ['pending', 'assigned', 'in_progress', 'completed', 'cancelled'],
+    default: 'pending'
+  },
+  assignedTo: String,
+  assignedBy: String,
+  completedBy: String,
+  priority: {
+    type: String,
+    enum: ['low', 'normal', 'high', 'urgent'],
+    default: 'normal'
+  },
+  requestedAt: { type: Date, default: Date.now },
+  assignedAt: Date,
+  completedAt: Date,
+  guestName: String,
+  service: String,
+  notes: String,
+}, { timestamps: true });
 
-export const insertAdminServiceSchema = createInsertSchema(adminServices);
-export const selectAdminServiceSchema = createSelectSchema(adminServices);
+// Admin Service Schema
+const adminServiceSchema = new Schema<IAdminService>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  serviceRequestId: { type: String, required: true, ref: 'ServiceRequest' },
+  requestType: { type: String, required: true },
+  assignedTo: { type: String, required: true },
+  timeFrame: { type: String, required: true },
+  service: { type: Boolean, default: true },
+  assignedAt: { type: Date, default: Date.now },
+  completedAt: Date,
+}, { timestamps: true });
+
+// Mongoose Models
+export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
+export const HotelAdmin = mongoose.models.HotelAdmin || mongoose.model<IHotelAdmin>('HotelAdmin', hotelAdminSchema);
+export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
+export const RoomType = mongoose.models.RoomType || mongoose.model<IRoomType>('RoomType', roomTypeSchema);
+export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
+export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
+export const AdminService = mongoose.models.AdminService || mongoose.model<IAdminService>('AdminService', adminServiceSchema);
 
 // Zod Validation Schemas
 export const insertHotelSchema = z.object({
@@ -164,6 +283,7 @@ export const insertCustomerSchema = z.object({
   checkoutTime: z.date().optional(),
   expectedStayDays: z.number().min(1).optional(),
   isActive: z.boolean().optional(),
+  qrCode: z.string().optional(),
 });
 
 export const insertHotelAdminSchema = z.object({
@@ -201,9 +321,12 @@ export type UpsertUser = {
 };
 
 export type UserType = IUser;
+export type HotelAdminType = IHotelAdmin;
 export type HotelType = IHotel;
+export type RoomTypeType = IRoomType;
 export type CustomerType = ICustomer;
 export type ServiceRequestType = IServiceRequest;
+export type AdminServiceType = IAdminService;
 
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;

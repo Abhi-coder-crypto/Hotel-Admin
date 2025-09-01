@@ -13,7 +13,7 @@ import {
   type CustomerType,
   type ServiceRequestType,
   type AdminServiceType,
-} from "./models";
+} from "../shared/schema";
 import {
   type UpsertUser,
   type InsertHotel,

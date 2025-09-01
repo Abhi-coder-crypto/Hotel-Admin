@@ -194,6 +194,7 @@ export const insertAdminServiceSchema = z.object({
 
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertHotelAdmin = z.infer<typeof insertHotelAdminSchema>;
+export type InsertRoomType = z.infer<typeof insertRoomTypeSchema>;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
 export type InsertAdminService = z.infer<typeof insertAdminServiceSchema>;
