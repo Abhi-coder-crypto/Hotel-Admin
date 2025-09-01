@@ -1,0 +1,83 @@
+client:536 WebSocket connection to 'wss://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/?token=9m6mWG4TbkWN' failed: 
+setupWebSocket @ client:536
+client:536 Uncaught (in promise) SyntaxError: Failed to construct 'WebSocket': The URL 'wss://localhost:undefined/?token=9m6mWG4TbkWN' is invalid.
+    at setupWebSocket (client:536:19)
+    at fallback (client:509:16)
+    at WebSocket.<anonymous> (client:555:7)
+chunk-RPCDYKBN.js?v=d2578dc0:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+/api/auth/user:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)
+react_jsx-dev-runtime.js?v=d2578dc0:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `Dashboard`. See https://reactjs.org/link/warning-keys for more information.
+    at ServiceRequestCard (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/components/service-request-card.tsx:81:46)
+    at Dashboard (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/pages/dashboard.tsx:32:59)
+    at Route (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:323:16)
+    at Switch (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:379:17)
+    at div
+    at div
+    at AppContent (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/App.tsx?v=huxbPBX2-324nn6WcKdG1:35:42)
+    at Provider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=d2578dc0:38:15)
+    at TooltipProvider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2578dc0:60:5)
+    at QueryClientProvider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d2578dc0:2805:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=d2578dc0:64
+service-request-card.tsx:135 Uncaught TypeError: Cannot read properties of undefined (reading 'replace')
+    at ServiceRequestCard (service-request-card.tsx:135:31)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=d2578dc0:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=d2578dc0:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=d2578dc0:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=d2578dc0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=d2578dc0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=d2578dc0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=d2578dc0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=d2578dc0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=d2578dc0:19137:13)
+service-request-card.tsx:135 Uncaught TypeError: Cannot read properties of undefined (reading 'replace')
+    at ServiceRequestCard (service-request-card.tsx:135:31)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=d2578dc0:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=d2578dc0:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=d2578dc0:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=d2578dc0:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=d2578dc0:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=d2578dc0:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=d2578dc0:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=d2578dc0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=d2578dc0:19137:13)
+chunk-RPCDYKBN.js?v=d2578dc0:14032 The above error occurred in the <ServiceRequestCard> component:
+
+    at ServiceRequestCard (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/components/service-request-card.tsx:81:46)
+    at div
+    at div
+    at _c9 (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at main
+    at div
+    at Dashboard (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/pages/dashboard.tsx:32:59)
+    at Route (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:323:16)
+    at Switch (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d2578dc0:379:17)
+    at div
+    at div
+    at AppContent (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/src/App.tsx?v=huxbPBX2-324nn6WcKdG1:35:42)
+    at Provider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=d2578dc0:38:15)
+    at TooltipProvider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d2578dc0:60:5)
+    at QueryClientProvider (https://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d2578dc0:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=d2578dc0:14032
+chunk-RPCDYKBN.js?v=d2578dc0:9129 Uncaught TypeError: Cannot read properties of undefined (reading 'replace')
+    at ServiceRequestCard (service-request-card.tsx:135:31)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=d2578dc0:11548:26)
+    at mountIndeterminateComponent (chunk-RPCDYKBN.js?v=d2578dc0:14926:21)
+    at beginWork (chunk-RPCDYKBN.js?v=d2578dc0:15914:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=d2578dc0:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=d2578dc0:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=d2578dc0:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=d2578dc0:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=d2578dc0:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=d2578dc0:18879:28)
+dashboard.tsx:66 WebSocket connection to 'wss://4fe46045-ecaf-48f1-ab73-d2f00e2556c1-00-1yc2nkkqj2c91.pike.replit.dev/ws' failed: WebSocket is closed before the connection is established.
+(anonymous) @ dashboard.tsx:66

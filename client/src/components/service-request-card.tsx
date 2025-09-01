@@ -132,7 +132,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
                 className="text-sm font-semibold text-gray-900 capitalize"
                 data-testid={`text-request-type-${request.id}`}
               >
-                {request.type.replace('_', ' ')}
+                {request.type ? request.type.replace('_', ' ') : 'Unknown'}
               </h4>
               <div className="flex items-center space-x-2">
                 <Badge 
