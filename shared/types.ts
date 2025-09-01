@@ -80,9 +80,12 @@ export interface ServiceRequest {
   id: string;
   hotelId: string;
   customerId?: string;
+  guestName?: string;
   roomNumber: string;
-  type: 'maintenance' | 'room_service' | 'food_delivery' | 'housekeeping' | 'concierge' | 'other';
-  description: string;
+  service: string; // This is what's actually stored in MongoDB
+  notes?: string; // Additional notes field from MongoDB
+  type?: 'maintenance' | 'room_service' | 'food_delivery' | 'housekeeping' | 'concierge' | 'other';
+  description?: string;
   status: 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
   assignedBy?: string;

@@ -126,7 +126,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
     <Card className="hover:border-gray-300 transition-colors">
       <CardContent className="p-4">
         <div className="flex items-start space-x-4">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getRequestIconColor(request.type)}`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getRequestIconColor(request.type || 'other')}`}>
             <Icon className="w-5 h-5" />
           </div>
           
@@ -136,7 +136,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
                 className="text-sm font-semibold text-gray-900 capitalize"
                 data-testid={`text-request-type-${request.id}`}
               >
-                {request.type ? request.type.replace('_', ' ') : 'Unknown'}
+                {request.service || request.type?.replace('_', ' ') || 'Service Request'}
               </h4>
               <div className="flex items-center space-x-2">
                 <Badge 
@@ -159,7 +159,7 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
               className="text-sm text-gray-600 mb-3"
               data-testid={`text-request-description-${request.id}`}
             >
-              {request.description}
+              {request.notes || request.description || 'No details provided'}
             </p>
             
             <div className="flex items-center justify-between">
@@ -171,6 +171,14 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
                 >
                   {request.roomNumber}
                 </span>
+                {request.guestName && (
+                  <>
+                    <span>•</span>
+                    <span data-testid={`text-guest-name-${request.id}`}>
+                      Guest: {request.guestName}
+                    </span>
+                  </>
+                )}
                 {request.assignedTo && (
                   <>
                     <span>•</span>

@@ -333,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/service-requests/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/service-requests/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
       const updateData = insertServiceRequestSchema.partial().parse(req.body);
