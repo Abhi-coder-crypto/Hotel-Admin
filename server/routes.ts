@@ -470,6 +470,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/regenerate-all-qr-codes', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      // Get all existing rooms
+      const rooms = await storage.getRooms(hotel.id);
+      
+      if (rooms.length === 0) {
+        return res.status(400).json({ message: "No rooms found to regenerate QR codes" });
+      }
+
+      const serviceAppUrl = process.env.SERVICE_APP_URL || 'https://your-service-app.replit.app';
+      let updatedCount = 0;
+
+      // Update each room's QR code
+      for (const room of rooms) {
+        const qrCodeUrl = `${serviceAppUrl}/service?room=${room.roomNumber}&hotel=${hotel.id}`;
+        const qrCodeBase64 = await QRCode.toDataURL(qrCodeUrl, {
+          errorCorrectionLevel: 'M',
+          margin: 1,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          }
+        });
+
+        await storage.updateRoom(room.id, {
+          qrCode: qrCodeBase64,
+          qrCodeUrl: qrCodeUrl
+        });
+        updatedCount++;
+      }
+
+      res.json({ 
+        success: true, 
+        message: `Successfully regenerated QR codes for ${updatedCount} rooms`,
+        updatedCount 
+      });
+    } catch (error) {
+      console.error("Error regenerating QR codes:", error);
+      res.status(500).json({ message: "Failed to regenerate QR codes" });
+    }
+  });
+
   // Analytics routes
   app.get('/api/analytics/stats', isAuthenticated, async (req: any, res) => {
     try {

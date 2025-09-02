@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, QrCode, ExternalLink } from "lucide-react";
+import { Download, QrCode, ExternalLink, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RoomQRCode {
@@ -18,6 +18,7 @@ interface RoomQRDisplayProps {
 
 export default function RoomQRDisplay({ hotelId }: RoomQRDisplayProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: roomQRCodes = [], isLoading } = useQuery<RoomQRCode[]>({
     queryKey: ["/api/qr-codes", hotelId],
@@ -28,6 +29,38 @@ export default function RoomQRDisplay({ hotelId }: RoomQRDisplayProps) {
       return response.json();
     },
     enabled: !!hotelId,
+  });
+
+  const regenerateQRMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/regenerate-all-qr-codes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to regenerate QR codes');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Success",
+        description: `Regenerated QR codes for ${data.updatedCount} rooms to point to service app`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/qr-codes", hotelId] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const downloadQRCode = (roomNumber: string, qrCode: string) => {
@@ -88,7 +121,21 @@ export default function RoomQRDisplay({ hotelId }: RoomQRDisplayProps) {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-800">Room QR Codes</h3>
+        <Button
+          onClick={() => regenerateQRMutation.mutate()}
+          disabled={regenerateQRMutation.isPending}
+          className="flex items-center space-x-2"
+          variant="outline"
+        >
+          <RefreshCw className={`w-4 h-4 ${regenerateQRMutation.isPending ? 'animate-spin' : ''}`} />
+          <span>{regenerateQRMutation.isPending ? 'Updating...' : 'Update All QR Codes'}</span>
+        </Button>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {roomQRCodes.map((room) => (
         <Card key={room.roomNumber} className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover:shadow-xl transition-all duration-300">
           <CardHeader className="pb-4">
@@ -140,6 +187,7 @@ export default function RoomQRDisplay({ hotelId }: RoomQRDisplayProps) {
           </CardContent>
         </Card>
       ))}
+      </div>
     </div>
   );
 }
