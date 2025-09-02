@@ -2,16 +2,26 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bed, Users, Crown, Home, RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bed, Users, Crown, Home, RefreshCw, QrCode } from "lucide-react";
 import { RoomType } from "@shared/types";
 import { useToast } from "@/hooks/use-toast";
+import RoomManagementModal from "@/components/room-management-modal";
+import RoomQRDisplay from "@/components/room-qr-display";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Rooms() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const { data: roomTypes = [], isLoading, isFetching } = useQuery<RoomType[]>({
     queryKey: ["/api/room-types"],
+  });
+
+  const { data: hotel } = useQuery<{ id: string }>({
+    queryKey: ["/api/hotel"],
+    enabled: !!user,
   });
 
   const handleRefresh = async () => {
@@ -110,8 +120,18 @@ export default function Rooms() {
 
       {/* Content */}
       <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50/30 to-purple-50/20">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {roomTypes.map((roomType) => (
+        <Tabs defaultValue="room-types" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="room-types">Room Types</TabsTrigger>
+              <TabsTrigger value="qr-codes">QR Codes</TabsTrigger>
+            </TabsList>
+            <RoomManagementModal />
+          </div>
+
+          <TabsContent value="room-types">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {roomTypes.map((roomType) => (
           <Card key={roomType.id} className="border-0 shadow-lg bg-gradient-to-br from-white to-purple-50/30 hover:shadow-xl transition-all duration-300 overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -187,24 +207,30 @@ export default function Rooms() {
               </div>
             </CardContent>
           </Card>
-        ))}
-        
-        {roomTypes.length === 0 && (
-          <div className="col-span-full">
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/30">
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-                  <Home className="h-8 w-8 text-white" />
+              ))}
+              
+              {roomTypes.length === 0 && (
+                <div className="col-span-full">
+                  <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/30">
+                    <CardContent className="flex flex-col items-center justify-center py-16">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                        <Home className="h-8 w-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-semibold mb-3 text-gray-800">No Room Types Found</h3>
+                      <p className="text-gray-600 text-center max-w-md">
+                        Room types will be automatically created when you set up your hotel.
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-800">No Room Types Found</h3>
-                <p className="text-gray-600 text-center max-w-md">
-                  Room types will be automatically created when you set up your hotel.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-        </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="qr-codes">
+            <RoomQRDisplay hotelId={hotel?.id} />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );

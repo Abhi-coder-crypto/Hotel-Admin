@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./multiHotelAuth";
-import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema, insertAdminServiceSchema } from "@shared/types";
+import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema, insertRoomSchema, insertAdminServiceSchema } from "@shared/types";
 import { z } from "zod";
 import QRCode from "qrcode";
 
@@ -229,21 +229,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hotelId: hotel.id 
       });
 
-      // Generate QR code for hotel service website
-      const serviceUrl = `https://your-hotel-service.com/service?room_no=${customerData.roomNumber}`;
-      const qrCodeBase64 = await QRCode.toDataURL(serviceUrl, {
-        errorCorrectionLevel: 'M',
-        margin: 1,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-
-      // Add QR code to customer data
-      const customerWithQR = { ...customerData, qrCode: qrCodeBase64 };
+      // Check if room exists in the Room collection
+      const room = await storage.getRoomByNumber(hotel.id, customerData.roomNumber);
+      if (room) {
+        // Update room occupancy status
+        await storage.updateRoom(room.id, { isOccupied: true });
+      }
       
-      const customer = await storage.createCustomer(customerWithQR);
+      const customer = await storage.createCustomer(customerData);
       
       // Broadcast to WebSocket clients
       broadcastToHotel(hotel.id, {
@@ -390,6 +383,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating admin service:", error);
       res.status(400).json({ message: "Failed to update admin service" });
+    }
+  });
+
+  // Room management routes
+  app.get('/api/rooms', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const rooms = await storage.getRooms(hotel.id);
+      res.json(rooms);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+      res.status(500).json({ message: "Failed to fetch rooms" });
+    }
+  });
+
+  app.post('/api/generate-room-qr', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const hotel = await storage.getUserHotel(userId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
+      const { roomNumber, roomTypeId, roomTypeName } = req.body;
+      
+      if (!roomNumber || !roomTypeId || !roomTypeName) {
+        return res.status(400).json({ message: "Room number, type ID, and type name are required" });
+      }
+
+      // Check if room already exists
+      const existingRoom = await storage.getRoomByNumber(hotel.id, roomNumber);
+      if (existingRoom) {
+        return res.status(400).json({ message: "Room already exists with QR code" });
+      }
+
+      // Generate QR code URL for room service
+      const qrCodeUrl = `${req.protocol}://${req.get('host')}/service?room=${roomNumber}&hotel=${hotel.id}`;
+      const qrCodeBase64 = await QRCode.toDataURL(qrCodeUrl, {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+
+      // Create room with QR code
+      const roomData = insertRoomSchema.parse({
+        hotelId: hotel.id,
+        roomNumber,
+        roomTypeId,
+        roomTypeName,
+        qrCode: qrCodeBase64,
+        qrCodeUrl,
+        isOccupied: false
+      });
+
+      const room = await storage.createRoom(roomData);
+      res.json(room);
+    } catch (error) {
+      console.error("Error generating room QR code:", error);
+      res.status(400).json({ 
+        message: "Failed to generate room QR code", 
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get('/api/qr-codes/:hotelId', async (req, res) => {
+    try {
+      const { hotelId } = req.params;
+      const roomQRCodes = await storage.getRoomQRCodes(hotelId);
+      res.json(roomQRCodes);
+    } catch (error) {
+      console.error("Error fetching room QR codes:", error);
+      res.status(500).json({ message: "Failed to fetch room QR codes" });
     }
   });
 

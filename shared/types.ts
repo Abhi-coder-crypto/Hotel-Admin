@@ -98,6 +98,20 @@ export interface ServiceRequest {
   updatedAt: Date;
 }
 
+export interface Room {
+  _id?: string;
+  id: string;
+  hotelId: string;
+  roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  qrCode?: string; // base64 QR code string
+  qrCodeUrl?: string; // URL for QR code scanning
+  isOccupied: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface AdminService {
   _id?: string;
   id: string;
@@ -183,6 +197,16 @@ export type UpsertUser = {
   profileImageUrl?: string;
 };
 
+export const insertRoomSchema = z.object({
+  hotelId: z.string(),
+  roomNumber: z.string().min(1, "Room number is required"),
+  roomTypeId: z.string().min(1, "Room type is required"),
+  roomTypeName: z.string().min(1, "Room type name is required"),
+  qrCode: z.string().optional(),
+  qrCodeUrl: z.string().optional(),
+  isOccupied: z.boolean().default(false),
+});
+
 export const insertAdminServiceSchema = z.object({
   hotelId: z.string(),
   serviceRequestId: z.string(),
@@ -195,6 +219,7 @@ export const insertAdminServiceSchema = z.object({
 export type InsertHotel = z.infer<typeof insertHotelSchema>;
 export type InsertHotelAdmin = z.infer<typeof insertHotelAdminSchema>;
 export type InsertRoomType = z.infer<typeof insertRoomTypeSchema>;
+export type InsertRoom = z.infer<typeof insertRoomSchema>;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type InsertServiceRequest = z.infer<typeof insertServiceRequestSchema>;
 export type InsertAdminService = z.infer<typeof insertAdminServiceSchema>;

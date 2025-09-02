@@ -98,6 +98,20 @@ export interface IServiceRequest extends Document {
   updatedAt: Date;
 }
 
+export interface IRoom extends Document {
+  _id: string;
+  id: string;
+  hotelId: string;
+  roomNumber: string;
+  roomTypeId: string;
+  roomTypeName: string;
+  qrCode?: string; // base64 QR code string
+  qrCodeUrl?: string; // URL for QR code scanning
+  isOccupied: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IAdminService extends Document {
   _id: string;
   id: string;
@@ -208,11 +222,26 @@ const serviceRequestSchema = new Schema<IServiceRequest>({
   completedAt: Date,
 }, { timestamps: true });
 
+const roomSchema = new Schema<IRoom>({
+  id: { type: String, unique: true, required: true, default: () => new mongoose.Types.ObjectId().toString() },
+  hotelId: { type: String, required: true, ref: 'Hotel' },
+  roomNumber: { type: String, required: true },
+  roomTypeId: { type: String, required: true, ref: 'RoomType' },
+  roomTypeName: { type: String, required: true },
+  qrCode: String, // base64 QR code string
+  qrCodeUrl: String, // URL for QR code scanning
+  isOccupied: { type: Boolean, default: false },
+}, { timestamps: true });
+
+// Create compound index for unique room numbers per hotel
+roomSchema.index({ hotelId: 1, roomNumber: 1 }, { unique: true });
+
 // Mongoose Models
 export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 export const HotelAdmin = mongoose.models.HotelAdmin || mongoose.model<IHotelAdmin>('HotelAdmin', hotelAdminSchema);
 export const Hotel = mongoose.models.Hotel || mongoose.model<IHotel>('Hotel', hotelSchema);
 export const RoomType = mongoose.models.RoomType || mongoose.model<IRoomType>('RoomType', roomTypeSchema);
+export const Room = mongoose.models.Room || mongoose.model<IRoom>('Room', roomSchema);
 export const Customer = mongoose.models.Customer || mongoose.model<ICustomer>('Customer', customerSchema);
 export const ServiceRequest = mongoose.models.ServiceRequest || mongoose.model<IServiceRequest>('ServiceRequest', serviceRequestSchema);
 
@@ -236,6 +265,7 @@ export type UserType = IUser;
 export type HotelAdminType = IHotelAdmin;
 export type HotelType = IHotel;
 export type RoomTypeType = IRoomType;
+export type RoomType = IRoom;
 export type CustomerType = ICustomer;
 export type ServiceRequestType = IServiceRequest;
 export type AdminServiceType = IAdminService;

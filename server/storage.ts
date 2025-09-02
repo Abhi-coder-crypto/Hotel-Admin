@@ -14,10 +14,12 @@ import {
   type ServiceRequestType,
   type AdminServiceType,
 } from "../shared/schema";
+import { Room, type RoomType as RoomModelType } from "./models";
 import {
   type UpsertUser,
   type InsertHotel,
   type InsertHotelAdmin,
+  type InsertRoom,
   type InsertCustomer,
   type InsertServiceRequest,
   type InsertAdminService,
@@ -54,6 +56,15 @@ export interface IStorage {
   createDefaultRoomTypesForHotel(hotelId: string): Promise<void>;
   createDefaultRoomTypes(hotelId: string): Promise<void>;
   getAvailableRoomNumbers(hotelId: string): Promise<{ [roomTypeId: string]: string[] }>;
+  
+  // Room operations
+  getRooms(hotelId: string): Promise<RoomModelType[]>;
+  getRoom(id: string): Promise<RoomModelType | undefined>;
+  getRoomByNumber(hotelId: string, roomNumber: string): Promise<RoomModelType | undefined>;
+  createRoom(room: InsertRoom): Promise<RoomModelType>;
+  updateRoom(id: string, data: Partial<InsertRoom>): Promise<RoomModelType>;
+  deleteRoom(id: string): Promise<void>;
+  getRoomQRCodes(hotelId: string): Promise<Array<{ roomNumber: string; roomType: string; qrCode: string; qrCodeUrl: string }>>;
   
   // Customer operations
   getCustomers(hotelId: string): Promise<CustomerType[]>;
@@ -321,6 +332,62 @@ export class DatabaseStorage implements IStorage {
     }
     
     return availableRoomsByType;
+  }
+
+  // Room operations
+  async getRooms(hotelId: string): Promise<RoomModelType[]> {
+    return await Room.find({ hotelId })
+      .sort({ roomNumber: 1 })
+      .lean() as any;
+  }
+
+  async getRoom(id: string): Promise<RoomModelType | undefined> {
+    const room = await Room.findOne({ id }).lean() as RoomModelType | null;
+    return room || undefined;
+  }
+
+  async getRoomByNumber(hotelId: string, roomNumber: string): Promise<RoomModelType | undefined> {
+    const room = await Room.findOne({ hotelId, roomNumber }).lean() as RoomModelType | null;
+    return room || undefined;
+  }
+
+  async createRoom(roomData: InsertRoom): Promise<RoomModelType> {
+    const room = new Room({
+      ...roomData,
+      id: new mongoose.Types.ObjectId().toString(),
+    });
+    await room.save();
+    return room.toObject() as RoomModelType;
+  }
+
+  async updateRoom(id: string, data: Partial<InsertRoom>): Promise<RoomModelType> {
+    const room = await Room.findOneAndUpdate(
+      { id },
+      { ...data, updatedAt: new Date() },
+      { new: true, lean: true }
+    ) as RoomModelType | null;
+    if (!room) {
+      throw new Error('Room not found');
+    }
+    return room;
+  }
+
+  async deleteRoom(id: string): Promise<void> {
+    await Room.deleteOne({ id });
+  }
+
+  async getRoomQRCodes(hotelId: string): Promise<Array<{ roomNumber: string; roomType: string; qrCode: string; qrCodeUrl: string }>> {
+    const rooms = await Room.find({ 
+      hotelId,
+      qrCode: { $exists: true, $ne: null }
+    }).lean();
+    
+    return rooms.map(room => ({
+      roomNumber: room.roomNumber,
+      roomType: room.roomTypeName,
+      qrCode: room.qrCode || '',
+      qrCodeUrl: room.qrCodeUrl || ''
+    }));
   }
 
   async updateHotel(id: string, data: Partial<InsertHotel>): Promise<HotelType> {
