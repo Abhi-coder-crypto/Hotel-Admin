@@ -474,11 +474,16 @@ export class DatabaseStorage implements IStorage {
       .sort({ requestedAt: -1 })
       .lean() as any[];
     
-    // Ensure each request has an id field (use _id if id is missing)
-    return requests.map(request => ({
-      ...request,
-      id: request.id || request._id.toString()
-    })) as ServiceRequestType[];
+    // Ensure each request has a valid ObjectId - use _id if id is invalid
+    return requests.map(request => {
+      const validId = (request.id && mongoose.Types.ObjectId.isValid(request.id)) 
+        ? request.id 
+        : request._id.toString();
+      return {
+        ...request,
+        id: validId
+      };
+    }) as ServiceRequestType[];
   }
 
   async getServiceRequest(id: string): Promise<ServiceRequestType | undefined> {
@@ -488,10 +493,13 @@ export class DatabaseStorage implements IStorage {
     
     if (!request) return undefined;
     
-    // Ensure the request has an id field
+    // Ensure the request has a valid ObjectId - use _id if id is invalid
+    const validId = (request.id && mongoose.Types.ObjectId.isValid(request.id)) 
+      ? request.id 
+      : request._id.toString();
     return {
       ...request,
-      id: request.id || request._id.toString()
+      id: validId
     } as ServiceRequestType;
   }
 
@@ -524,10 +532,13 @@ export class DatabaseStorage implements IStorage {
       throw new Error('Service request not found');
     }
     
-    // Ensure the returned request has an id field
+    // Ensure the returned request has a valid ObjectId - use _id if id is invalid
+    const validId = (request.id && mongoose.Types.ObjectId.isValid(request.id)) 
+      ? request.id 
+      : request._id.toString();
     return {
       ...request,
-      id: request.id || request._id.toString()
+      id: validId
     } as ServiceRequestType;
   }
 
