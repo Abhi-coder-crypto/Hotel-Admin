@@ -38,11 +38,18 @@ export default function RoomQRDisplay({ hotelId }: RoomQRDisplayProps) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include cookies for authentication
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to regenerate QR codes');
+        let errorMessage = 'Failed to regenerate QR codes';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || errorMessage;
+        } catch {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();
