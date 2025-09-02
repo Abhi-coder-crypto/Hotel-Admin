@@ -6,6 +6,12 @@ import { setupAuth, isAuthenticated } from "./multiHotelAuth";
 import { insertHotelSchema, insertCustomerSchema, insertServiceRequestSchema, insertRoomTypeSchema, insertRoomSchema, insertAdminServiceSchema } from "@shared/types";
 import { z } from "zod";
 import QRCode from "qrcode";
+import mongoose from "mongoose";
+
+// Utility function to validate ObjectId
+function isValidObjectId(id: string): boolean {
+  return mongoose.Types.ObjectId.isValid(id) && (new mongoose.Types.ObjectId(id).toString() === id || id.length === 24);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -329,6 +335,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/service-requests/:id', async (req: any, res) => {
     try {
       const { id } = req.params;
+      
+      // Validate ID format for security
+      if (!isValidObjectId(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
       const updateData = insertServiceRequestSchema.partial().omit({ assignedAt: true, completedAt: true }).parse(req.body);
       const serviceRequest = await storage.updateServiceRequest(id, updateData);
       
@@ -377,6 +389,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/admin-services/:serviceRequestId', async (req, res) => {
     try {
       const { serviceRequestId } = req.params;
+      
+      // Validate ID format for security
+      if (!isValidObjectId(serviceRequestId)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
       const updateData = insertAdminServiceSchema.partial().parse(req.body);
       const adminService = await storage.updateAdminService(serviceRequestId, updateData);
       res.json(adminService);
