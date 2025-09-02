@@ -425,8 +425,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Room already exists with QR code" });
       }
 
-      // Generate QR code URL for room service
-      const qrCodeUrl = `${req.protocol}://${req.get('host')}/service?room=${roomNumber}&hotel=${hotel.id}`;
+      // Generate QR code URL for room service - pointing to your service app
+      const serviceAppUrl = process.env.SERVICE_APP_URL || 'https://your-service-app.com';
+      const qrCodeUrl = `${serviceAppUrl}/service?room=${roomNumber}&hotel=${hotel.id}`;
       const qrCodeBase64 = await QRCode.toDataURL(qrCodeUrl, {
         errorCorrectionLevel: 'M',
         margin: 1,
