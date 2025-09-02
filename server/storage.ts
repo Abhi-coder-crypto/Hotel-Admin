@@ -565,11 +565,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAdminService(serviceRequestId: string, data: Partial<InsertAdminService>): Promise<AdminServiceType> {
+    // Find the most recent admin service for this service request
     const adminService = await AdminService.findOneAndUpdate(
-      { $or: [{ serviceRequestId }, { serviceRequestId: serviceRequestId }] },
+      { serviceRequestId },
       { ...data, updatedAt: new Date() },
-      { new: true, lean: true }
+      { new: true, lean: true, sort: { assignedAt: -1 } }
     ) as AdminServiceType | null;
+    
     if (!adminService) {
       throw new Error('Admin service not found');
     }

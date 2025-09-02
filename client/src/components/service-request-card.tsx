@@ -109,13 +109,18 @@ export default function ServiceRequestCard({ request }: ServiceRequestCardProps)
         completedAt: new Date(),
       });
       
-      // Update admin service to mark service: false (completion)
-      const adminResponse = await apiRequest("PUT", `/api/admin-services/${request.id}`, {
-        service: false,
-        completedAt: new Date(),
-      });
+      // Try to update admin service to mark service: false (completion)
+      // This may fail if no admin service exists, which is okay
+      try {
+        const adminResponse = await apiRequest("PUT", `/api/admin-services/${request.id}`, {
+          service: false,
+          completedAt: new Date(),
+        });
+      } catch (error) {
+        console.log("No admin service found for completion, continuing...");
+      }
       
-      return { serviceResponse, adminResponse };
+      return { serviceResponse };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/service-requests"] });
