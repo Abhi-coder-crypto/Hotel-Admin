@@ -716,32 +716,28 @@ export class DatabaseStorage implements IStorage {
       }))
       .sort((a, b) => b.count - a.count);
 
-    // Staff performance from admin services and service requests
+    // Staff performance based directly on service requests
     const staffStats: { [key: string]: { assigned: number; completed: number; timeFrames: string[] } } = {};
     
-    adminServices.forEach(service => {
-      if (!staffStats[service.assignedTo]) {
-        staffStats[service.assignedTo] = { assigned: 0, completed: 0, timeFrames: [] };
-      }
-      staffStats[service.assignedTo].assigned++;
-      staffStats[service.assignedTo].timeFrames.push(service.timeFrame);
-    });
-
-    // Check completion status from both AdminService and ServiceRequest
-    adminServices.forEach(service => {
-      // Find the corresponding service request
-      const serviceRequest = serviceRequests.find(req => {
-        const reqId = req.id || (req as any)._id?.toString();
-        return reqId === service.serviceRequestId;
-      });
-      
-      // Mark as completed if either:
-      // 1. AdminService.service is false (explicitly marked complete)
-      // 2. ServiceRequest.status is 'completed'
-      if (!service.service || (serviceRequest && serviceRequest.status === 'completed')) {
-        if (staffStats[service.assignedTo]) {
-          staffStats[service.assignedTo].completed++;
+    // Count assignments and completions from service requests
+    serviceRequests.forEach(request => {
+      if (request.assignedTo && request.status !== 'pending') {
+        if (!staffStats[request.assignedTo]) {
+          staffStats[request.assignedTo] = { assigned: 0, completed: 0, timeFrames: [] };
         }
+        staffStats[request.assignedTo].assigned++;
+        
+        // Mark as completed if service request is completed
+        if (request.status === 'completed') {
+          staffStats[request.assignedTo].completed++;
+        }
+      }
+    });
+    
+    // Get timeframes from admin services for display
+    adminServices.forEach(service => {
+      if (staffStats[service.assignedTo]) {
+        staffStats[service.assignedTo].timeFrames.push(service.timeFrame);
       }
     });
 
@@ -749,7 +745,7 @@ export class DatabaseStorage implements IStorage {
       staffMember,
       assignedRequests: data.assigned,
       completedRequests: data.completed,
-      avgTimeFrame: data.timeFrames[0] || 'N/A' // Most recent timeframe
+      avgTimeFrame: data.timeFrames.length > 0 ? data.timeFrames[data.timeFrames.length - 1] : '20minutes' // Most recent timeframe or default
     }));
 
     // Completion timeframes (calculate average hours based on completed services)
