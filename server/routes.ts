@@ -483,7 +483,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rooms = await storage.getRooms(hotel.id);
       
       if (rooms.length === 0) {
-        return res.status(400).json({ message: "No rooms found to regenerate QR codes" });
+        return res.json({ 
+          success: true, 
+          message: "No rooms found - QR codes are generated when you create room QR codes",
+          updatedCount: 0 
+        });
       }
 
       const serviceAppUrl = process.env.SERVICE_APP_URL || 'https://your-service-app.replit.app';
