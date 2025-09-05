@@ -62,6 +62,7 @@ export interface ICustomer extends Document {
   name: string;
   email?: string;
   phone: string;
+  aadharNumber: string;
   roomNumber: string;
   roomTypeId: string;
   roomTypeName: string;
@@ -184,6 +185,16 @@ const customerSchema = new Schema<ICustomer>({
   name: { type: String, required: true },
   email: String,
   phone: { type: String, required: true },
+  aadharNumber: { 
+    type: String, 
+    required: true,
+    validate: {
+      validator: function(v: string) {
+        return /^[2-9]{1}[0-9]{3}\s?[0-9]{4}\s?[0-9]{4}$/.test(v.replace(/\s/g, ''));
+      },
+      message: 'Please enter a valid 12-digit Aadhar number'
+    }
+  },
   roomNumber: { type: String, required: true },
   roomTypeId: { type: String, required: true, ref: 'RoomType' },
   roomTypeName: { type: String, required: true },

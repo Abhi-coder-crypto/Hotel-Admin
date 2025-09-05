@@ -57,6 +57,7 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       name: '',
       phone: '',
       email: '',
+      aadharNumber: '',
       roomTypeId: '',
       roomNumber: '',
       expectedStayDays: 1,
@@ -126,6 +127,27 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
       toast({
         title: "Invalid Phone Number",
         description: "Please enter a valid phone number with country code (e.g., +91 9876543210)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Aadhar number validation
+    if (!data.aadharNumber || data.aadharNumber.trim() === '') {
+      toast({
+        title: "Validation Error",
+        description: "Aadhar number is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const aadharRegex = /^[2-9][0-9]{3}\s?[0-9]{4}\s?[0-9]{4}$/;
+    const cleanAadhar = data.aadharNumber.replace(/\s/g, '');
+    if (!aadharRegex.test(data.aadharNumber) || cleanAadhar.length !== 12) {
+      toast({
+        title: "Invalid Aadhar Number",
+        description: "Please enter a valid 12-digit Aadhar number. First digit cannot be 0 or 1",
         variant: "destructive",
       });
       return;
@@ -255,11 +277,15 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
                     <Badge variant="secondary">{successData.roomTypeName}</Badge>
                   </div>
                   {successData.email && (
-                    <div className="flex items-center space-x-2 md:col-span-2">
+                    <div className="flex items-center space-x-2">
                       <Mail className="w-4 h-4 text-gray-400" />
                       <span>{successData.email}</span>
                     </div>
                   )}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-600">Aadhar:</span>
+                    <span className="font-mono text-sm">{successData.aadharNumber}</span>
+                  </div>
                   <div className="flex items-center space-x-2 md:col-span-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
                     <span>Check-in: {format(new Date(successData.checkinTime!), "MMM dd, yyyy 'at' h:mm a")}</span>
@@ -376,6 +402,34 @@ export default function AddCustomerModal({ open, onOpenChange }: AddCustomerModa
             </p>
             {errors.email && (
               <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="aadharNumber">Aadhar Number</Label>
+            <Input
+              id="aadharNumber"
+              {...register("aadharNumber")}
+              placeholder="Enter 12-digit Aadhar number (e.g., 2345 6789 0123)"
+              maxLength={14}
+              data-testid="input-aadhar-number"
+              onChange={(e) => {
+                // Format Aadhar number with spaces
+                let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                if (value.length > 4 && value.length <= 8) {
+                  value = value.slice(0, 4) + ' ' + value.slice(4);
+                } else if (value.length > 8) {
+                  value = value.slice(0, 4) + ' ' + value.slice(4, 8) + ' ' + value.slice(8, 12);
+                }
+                e.target.value = value;
+                setValue("aadharNumber", value, { shouldValidate: true });
+              }}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Required - 12-digit Indian Aadhar number (first digit cannot be 0 or 1)
+            </p>
+            {errors.aadharNumber && (
+              <p className="text-sm text-red-500 mt-1">{errors.aadharNumber.message}</p>
             )}
           </div>
 

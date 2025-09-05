@@ -75,6 +75,7 @@ export interface ICustomer extends Document {
   name: string;
   email?: string;
   phone: string;
+  aadharNumber: string;
   roomNumber: string;
   roomTypeId: string;
   roomTypeName: string;
@@ -196,6 +197,16 @@ const customerSchema = new Schema<ICustomer>({
   name: { type: String, required: true },
   email: String,
   phone: { type: String, required: true },
+  aadharNumber: { 
+    type: String, 
+    required: true,
+    validate: {
+      validator: function(v: string) {
+        return /^[2-9]{1}[0-9]{3}\s?[0-9]{4}\s?[0-9]{4}$/.test(v.replace(/\s/g, ''));
+      },
+      message: 'Please enter a valid 12-digit Aadhar number'
+    }
+  },
   roomNumber: { type: String, required: true },
   roomTypeId: { type: String, required: true, ref: 'RoomType' },
   roomTypeName: { type: String, required: true },
@@ -275,6 +286,10 @@ export const insertCustomerSchema = z.object({
   name: z.string().min(1, "Customer name is required"),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().min(1, "Phone number is required"),
+  aadharNumber: z.string()
+    .min(12, "Aadhar number must be 12 digits")
+    .max(14, "Aadhar number cannot exceed 14 characters (including spaces)")
+    .regex(/^[2-9][0-9]{3}\s?[0-9]{4}\s?[0-9]{4}$/, "Please enter a valid 12-digit Aadhar number (first digit cannot be 0 or 1)"),
   roomNumber: z.string().min(1, "Room number is required"),
   roomTypeId: z.string().min(1, "Room type is required"),
   roomTypeName: z.string().min(1, "Room type name is required"),

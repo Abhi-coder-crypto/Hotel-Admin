@@ -62,6 +62,7 @@ export interface Customer {
   name: string;
   email?: string;
   phone: string;
+  aadharNumber: string;
   roomNumber: string;
   roomTypeId: string;
   roomTypeName: string;
@@ -154,6 +155,10 @@ export const insertCustomerSchema = z.object({
   phone: z.string()
     .min(1, "Phone number is required")
     .regex(/^[+]?[1-9]\d{1,14}$/, "Please enter a valid phone number with country code (e.g., +1234567890)"),
+  aadharNumber: z.string()
+    .min(12, "Aadhar number must be 12 digits")
+    .max(14, "Aadhar number cannot exceed 14 characters (including spaces)")
+    .regex(/^[2-9][0-9]{3}\s?[0-9]{4}\s?[0-9]{4}$/, "Please enter a valid 12-digit Aadhar number (first digit cannot be 0 or 1)"),
   roomNumber: z.string().min(1, "Room number is required"),
   roomTypeId: z.string().min(1, "Room type is required"),
   roomTypeName: z.string().min(1, "Room type name is required"),
