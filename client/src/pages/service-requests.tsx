@@ -1,18 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Bell, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { ServiceRequest } from "@shared/types";
+import { Search, Bell, Clock, CheckCircle, XCircle, AlertCircle, Volume2 } from "lucide-react";
+import { ServiceRequest, Hotel } from "@shared/types";
 import ServiceRequestCard from "@/components/service-request-card";
+import { useWebSocketNotifications } from "@/hooks/useWebSocketNotifications";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ServiceRequests() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const { toast } = useToast();
 
   const { data: serviceRequests = [], isLoading } = useQuery<ServiceRequest[]>({
     queryKey: ["/api/service-requests"],
+  });
+
+  const { data: hotel } = useQuery<Hotel>({
+    queryKey: ["/api/hotel"],
+  });
+
+  // Handle new service request notifications
+  const handleNewServiceRequest = (data: any) => {
+    toast({
+      title: "New Service Request",
+      description: `New ${data.type || 'service'} request from Room ${data.roomNumber}`,
+      duration: 5000,
+    });
+  };
+
+  // Set up WebSocket notifications
+  const { isConnected } = useWebSocketNotifications({
+    hotelId: hotel?.id,
+    onNewServiceRequest: handleNewServiceRequest,
+    enableSound: soundEnabled,
   });
 
   const filteredRequests = serviceRequests.filter(request =>
@@ -70,6 +94,24 @@ export default function ServiceRequests() {
             <p className="text-sm text-gray-600 mt-1">Manage and track all guest service requests</p>
           </div>
           <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs transition-colors ${
+                soundEnabled 
+                  ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+              title={soundEnabled ? 'Sound notifications enabled' : 'Sound notifications disabled'}
+            >
+              <Volume2 className="w-3 h-3" />
+              <span>{soundEnabled ? 'Sound On' : 'Sound Off'}</span>
+            </button>
+            <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${
+              isConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }`}>
+              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span>{isConnected ? 'Live' : 'Offline'}</span>
+            </div>
             <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm" data-testid="badge-total-requests">
               Total: {serviceRequests.length}
             </Badge>

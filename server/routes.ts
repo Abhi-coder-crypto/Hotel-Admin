@@ -321,7 +321,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Broadcast to WebSocket clients
       broadcastToHotel(requestData.hotelId, {
-        type: 'service_request_created',
+        type: 'new_service_request',
+        roomNumber: serviceRequest.roomNumber,
+        requestType: serviceRequest.type,
+        description: serviceRequest.description,
         data: serviceRequest
       });
 

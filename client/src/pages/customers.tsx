@@ -13,12 +13,14 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Plus, Search, User, Phone, Mail, Bed, Calendar, MoreHorizontal, LogOut, QrCode } from "lucide-react";
+import { Plus, Search, User, Phone, Mail, Bed, Calendar, MoreHorizontal, LogOut, QrCode, Download } from "lucide-react";
 import { Customer } from "@shared/types";
 import { formatDistanceToNow, format } from "date-fns";
 import AddCustomerModal from "@/components/add-customer-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { downloadCheckoutReport } from "@/lib/pdfGenerator";
+import { Hotel } from "@shared/types";
 
 export default function Customers() {
   const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
@@ -28,6 +30,10 @@ export default function Customers() {
 
   const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ["/api/customers"],
+  });
+
+  const { data: hotel } = useQuery<Hotel>({
+    queryKey: ["/api/hotel"],
   });
 
   const checkoutMutation = useMutation({
@@ -268,14 +274,26 @@ export default function Customers() {
         {checkedOutCustomers.length > 0 && (
           <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50/30 hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-4">
-              <CardTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-800">
-                <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
-                  <LogOut className="w-4 h-4 text-white" />
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 text-xl font-semibold text-gray-800">
+                  <div className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+                    <LogOut className="w-4 h-4 text-white" />
+                  </div>
+                  <span>Recent Check-outs</span>
+                  <Badge className="bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-sm">
+                    {checkedOutCustomers.length}
+                  </Badge>
                 </div>
-                <span>Recent Check-outs</span>
-                <Badge className="bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-sm">
-                  {checkedOutCustomers.length}
-                </Badge>
+                {checkedOutCustomers.length > 0 && (
+                  <Button
+                    onClick={() => downloadCheckoutReport(checkedOutCustomers, hotel?.name)}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                    data-testid="button-download-checkout-report"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download PDF Report</span>
+                  </Button>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent>
